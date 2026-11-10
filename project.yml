@@ -1,0 +1,136 @@
+# Xcode project definition. Edit this file, then run `xcodegen generate`
+# to rebuild SpiderPomodoro.xcodeproj (don't edit the .xcodeproj by hand).
+name: SpiderPomodoro
+
+options:
+  deploymentTarget:
+    macOS: "15.0"
+    iOS: "18.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    DEVELOPMENT_TEAM: T25NT3U739
+    CODE_SIGN_STYLE: Automatic
+    # Same app ID on iPhone and Mac (allowed by Apple; keeps one App Store listing possible).
+    APP_BUNDLE_ID: com.mertcankarabas.spiderpomodoro
+    # Shared storage between each app and its widgets.
+    APP_GROUP_ID: group.com.mertcankarabas.spiderpomodoro
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+
+packages:
+  SpiderCore:
+    path: Packages/SpiderCore
+
+targets:
+  # MARK: Mac
+
+  SpiderPomodoroMac:
+    type: application
+    platform: macOS
+    sources: [Mac]
+    dependencies:
+      - package: SpiderCore
+      - target: SpiderWidgetsMac
+    scheme: {}
+    info:
+      path: Mac/Info.plist
+      properties:
+        CFBundleDisplayName: Spider Pomodoro
+        LSApplicationCategoryType: public.app-category.productivity
+        # Menu bar only: no Dock icon.
+        LSUIElement: true
+        SpiderAppGroup: $(APP_GROUP_ID)
+    entitlements:
+      path: Mac/SpiderPomodoroMac.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.application-groups: [$(APP_GROUP_ID)]
+    settings:
+      base:
+        PRODUCT_NAME: Spider Pomodoro
+        PRODUCT_MODULE_NAME: SpiderPomodoroMac
+        PRODUCT_BUNDLE_IDENTIFIER: $(APP_BUNDLE_ID)
+        ENABLE_HARDENED_RUNTIME: true
+
+  SpiderWidgetsMac:
+    type: app-extension
+    platform: macOS
+    sources: [Widgets]
+    dependencies:
+      - package: SpiderCore
+    info:
+      path: MacWidgets/Info.plist
+      properties:
+        CFBundleDisplayName: Spider Pomodoro
+        SpiderAppGroup: $(APP_GROUP_ID)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: MacWidgets/SpiderWidgetsMac.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.application-groups: [$(APP_GROUP_ID)]
+    settings:
+      base:
+        PRODUCT_NAME: SpiderWidgets
+        PRODUCT_BUNDLE_IDENTIFIER: $(APP_BUNDLE_ID).widgets
+        ENABLE_HARDENED_RUNTIME: true
+        SKIP_INSTALL: true
+
+  # MARK: iPhone
+
+  SpiderPomodoroiOS:
+    type: application
+    platform: iOS
+    sources: [iOS]
+    dependencies:
+      - package: SpiderCore
+      - target: SpiderWidgetsiOS
+    scheme: {}
+    info:
+      path: iOS/Info.plist
+      properties:
+        CFBundleDisplayName: Spider Pomodoro
+        SpiderAppGroup: $(APP_GROUP_ID)
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        UIUserInterfaceStyle: Dark
+    entitlements:
+      path: iOS/SpiderPomodoroiOS.entitlements
+      properties:
+        com.apple.security.application-groups: [$(APP_GROUP_ID)]
+    settings:
+      base:
+        PRODUCT_NAME: Spider Pomodoro
+        PRODUCT_MODULE_NAME: SpiderPomodoroiOS
+        PRODUCT_BUNDLE_IDENTIFIER: $(APP_BUNDLE_ID)
+        TARGETED_DEVICE_FAMILY: "1"
+
+  SpiderWidgetsiOS:
+    type: app-extension
+    platform: iOS
+    sources: [Widgets]
+    dependencies:
+      - package: SpiderCore
+    info:
+      path: iOSWidgets/Info.plist
+      properties:
+        CFBundleDisplayName: Spider Pomodoro
+        SpiderAppGroup: $(APP_GROUP_ID)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: iOSWidgets/SpiderWidgetsiOS.entitlements
+      properties:
+        com.apple.security.application-groups: [$(APP_GROUP_ID)]
+    settings:
+      base:
+        PRODUCT_NAME: SpiderWidgets
+        PRODUCT_BUNDLE_IDENTIFIER: $(APP_BUNDLE_ID).widgets
+        TARGETED_DEVICE_FAMILY: "1"
+        SKIP_INSTALL: true

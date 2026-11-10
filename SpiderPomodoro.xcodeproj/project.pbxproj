@@ -1,0 +1,769 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		104E3668700AD7D79773A19D /* HeroPrefs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 784A429A0D833D1521E11639 /* HeroPrefs.swift */; };
+		13623640909DDFEA12641E15 /* SpiderCore in Frameworks */ = {isa = PBXBuildFile; productRef = 633AD24A45CA1C300BB63122 /* SpiderCore */; };
+		28DB3AC4F387D8F304ECFE67 /* SpiderWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91305E8FF842BED3D5C11635 /* SpiderWidgetBundle.swift */; };
+		3A6624837D35A9C9BA6D18FE /* TimerScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8459F46D3467F3A460799F89 /* TimerScreen.swift */; };
+		3AD276075DA51ECE072A8959 /* TimerPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D8BFEFF0B4747FBAF465430 /* TimerPanelView.swift */; };
+		494F3F693E8802AA590E6FAF /* SpiderCore in Frameworks */ = {isa = PBXBuildFile; productRef = 9CE0050063F405805DE36CA8 /* SpiderCore */; };
+		53E868DD5FB508C019BB8E05 /* TimerWidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41E724409585B7D3DFFCB8D6 /* TimerWidgetViews.swift */; };
+		5C8044285D9A5E7BD5B33AFD /* SpiderWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91305E8FF842BED3D5C11635 /* SpiderWidgetBundle.swift */; };
+		6A942687A1F464583722E2C7 /* SpiderWidgetsiOS.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 68DF063C7568B3925B7002D1 /* SpiderWidgetsiOS.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		6C40FEB6377434EC84C10EE6 /* TimerProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850D2F009565BDC9606DEDAE /* TimerProvider.swift */; };
+		74BCF9A02CC35B3201841640 /* PhaseSound.swift in Sources */ = {isa = PBXBuildFile; fileRef = 782530EF6BAA2FAA7EAB12D7 /* PhaseSound.swift */; };
+		813B0BD6B7DFB378E49CD702 /* HangingHeroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27A8F8BB34E16D19C947607B /* HangingHeroView.swift */; };
+		83740F32696D3FAD4B5CF984 /* SpiderPomodoroApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CBCD63F6458595F39A3E6D7 /* SpiderPomodoroApp.swift */; };
+		845DFAF12619DFB8127E1B5E /* TimerWidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41E724409585B7D3DFFCB8D6 /* TimerWidgetViews.swift */; };
+		8965FD9B428907212609C869 /* TimerIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = C21E95B80A8564B3675A6493 /* TimerIntents.swift */; };
+		8D5C293FFB90AA05A9E7D1FE /* TimerIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = C21E95B80A8564B3675A6493 /* TimerIntents.swift */; };
+		99C3A1F5DD0E5A97367C2DF8 /* SpiderWidgetsMac.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 21DD5FDAE0EEF89FB2E8A1F4 /* SpiderWidgetsMac.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A33232EC98A36F2393FBE010 /* SpiderCore in Frameworks */ = {isa = PBXBuildFile; productRef = DF31B47B04650B2E96E62557 /* SpiderCore */; };
+		A41B163B037F45FA3C2AD09F /* HeroIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020657CDDEBB4AB43E0B8751 /* HeroIcon.swift */; };
+		C8056D0AC40D1C5B09CA276B /* SettingsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631E668C74943045BE269488 /* SettingsSheet.swift */; };
+		CE3C31FA7D453C7EA23AD082 /* HangingHeroWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03F7D061DF1EB7DDA25C37CE /* HangingHeroWindow.swift */; };
+		D8EE74B3FBCFE794613FE976 /* StatusItemController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 310CCD558A7A71D5395D47B9 /* StatusItemController.swift */; };
+		E19720ACBD146D39CD63C47B /* TimerProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850D2F009565BDC9606DEDAE /* TimerProvider.swift */; };
+		F1EECE4243CDF962BB93861D /* SpiderPomodoroApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A13B2D886E3A4225293752AE /* SpiderPomodoroApp.swift */; };
+		F71D708881CB41DD91028468 /* SpiderCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5DA5B5DD6D5F004EE97D15BC /* SpiderCore */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		061EB992D2AC5D8F9867CC1E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FBEC176D2BF6AAAB368779D2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1FBC17E5C5375E68C6F069A4;
+			remoteInfo = SpiderWidgetsiOS;
+		};
+		D53448E60A213EA1D90CFEB8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FBEC176D2BF6AAAB368779D2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0BA6E286ECE10D0A58C8073F;
+			remoteInfo = SpiderWidgetsMac;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		6EC11D3DEFBC232AB6A33E1C /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				6A942687A1F464583722E2C7 /* SpiderWidgetsiOS.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8058777EE980AD29FDB38229 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				99C3A1F5DD0E5A97367C2DF8 /* SpiderWidgetsMac.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		020657CDDEBB4AB43E0B8751 /* HeroIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeroIcon.swift; sourceTree = "<group>"; };
+		03F7D061DF1EB7DDA25C37CE /* HangingHeroWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HangingHeroWindow.swift; sourceTree = "<group>"; };
+		0CBCD63F6458595F39A3E6D7 /* SpiderPomodoroApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpiderPomodoroApp.swift; sourceTree = "<group>"; };
+		1D8BFEFF0B4747FBAF465430 /* TimerPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerPanelView.swift; sourceTree = "<group>"; };
+		21DD5FDAE0EEF89FB2E8A1F4 /* SpiderWidgetsMac.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SpiderWidgetsMac.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		27A8F8BB34E16D19C947607B /* HangingHeroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HangingHeroView.swift; sourceTree = "<group>"; };
+		310CCD558A7A71D5395D47B9 /* StatusItemController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusItemController.swift; sourceTree = "<group>"; };
+		39D17A3DB1753E6A8EF08669 /* SpiderPomodoroMac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SpiderPomodoroMac.entitlements; sourceTree = "<group>"; };
+		3EFCFFCF00FB16CE7A1BC018 /* SpiderCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SpiderCore; path = Packages/SpiderCore; sourceTree = SOURCE_ROOT; };
+		41E724409585B7D3DFFCB8D6 /* TimerWidgetViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerWidgetViews.swift; sourceTree = "<group>"; };
+		631E668C74943045BE269488 /* SettingsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSheet.swift; sourceTree = "<group>"; };
+		68DF063C7568B3925B7002D1 /* SpiderWidgetsiOS.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = SpiderWidgetsiOS.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		782530EF6BAA2FAA7EAB12D7 /* PhaseSound.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhaseSound.swift; sourceTree = "<group>"; };
+		784A429A0D833D1521E11639 /* HeroPrefs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeroPrefs.swift; sourceTree = "<group>"; };
+		8459F46D3467F3A460799F89 /* TimerScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerScreen.swift; sourceTree = "<group>"; };
+		850D2F009565BDC9606DEDAE /* TimerProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerProvider.swift; sourceTree = "<group>"; };
+		91305E8FF842BED3D5C11635 /* SpiderWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpiderWidgetBundle.swift; sourceTree = "<group>"; };
+		A13B2D886E3A4225293752AE /* SpiderPomodoroApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpiderPomodoroApp.swift; sourceTree = "<group>"; };
+		A3E9AED614FB70CBD4D52494 /* SpiderPomodoroiOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SpiderPomodoroiOS.entitlements; sourceTree = "<group>"; };
+		B971DD648C895AAFFCB122A5 /* SpiderPomodoroiOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SpiderPomodoroiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BE8F8011CCE330A2986C7348 /* SpiderPomodoroMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SpiderPomodoroMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C21E95B80A8564B3675A6493 /* TimerIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerIntents.swift; sourceTree = "<group>"; };
+		D4824D3AB993138F3A0CAE9D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		E11F34F68882B4E19A423E28 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2606AE632D1D52762AA8B8FC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				13623640909DDFEA12641E15 /* SpiderCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		283856FFC910B51C7245843D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				494F3F693E8802AA590E6FAF /* SpiderCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5119108DDB53696A4FFE02C6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F71D708881CB41DD91028468 /* SpiderCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		68E591220C71232F9580DDC0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A33232EC98A36F2393FBE010 /* SpiderCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		293C5719514F3D1984BEFBA1 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				3EFCFFCF00FB16CE7A1BC018 /* SpiderCore */,
+			);
+			path = Packages;
+			sourceTree = "<group>";
+		};
+		3A00FD24095D602173E7B9F4 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				E11F34F68882B4E19A423E28 /* Info.plist */,
+				631E668C74943045BE269488 /* SettingsSheet.swift */,
+				0CBCD63F6458595F39A3E6D7 /* SpiderPomodoroApp.swift */,
+				A3E9AED614FB70CBD4D52494 /* SpiderPomodoroiOS.entitlements */,
+				8459F46D3467F3A460799F89 /* TimerScreen.swift */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+		76E142AAC7AF9A0E8BB57F57 /* Mac */ = {
+			isa = PBXGroup;
+			children = (
+				27A8F8BB34E16D19C947607B /* HangingHeroView.swift */,
+				03F7D061DF1EB7DDA25C37CE /* HangingHeroWindow.swift */,
+				020657CDDEBB4AB43E0B8751 /* HeroIcon.swift */,
+				784A429A0D833D1521E11639 /* HeroPrefs.swift */,
+				D4824D3AB993138F3A0CAE9D /* Info.plist */,
+				782530EF6BAA2FAA7EAB12D7 /* PhaseSound.swift */,
+				A13B2D886E3A4225293752AE /* SpiderPomodoroApp.swift */,
+				39D17A3DB1753E6A8EF08669 /* SpiderPomodoroMac.entitlements */,
+				310CCD558A7A71D5395D47B9 /* StatusItemController.swift */,
+				1D8BFEFF0B4747FBAF465430 /* TimerPanelView.swift */,
+			);
+			path = Mac;
+			sourceTree = "<group>";
+		};
+		8E1D92688F3C4D6164ADCE4B /* Widgets */ = {
+			isa = PBXGroup;
+			children = (
+				91305E8FF842BED3D5C11635 /* SpiderWidgetBundle.swift */,
+				C21E95B80A8564B3675A6493 /* TimerIntents.swift */,
+				850D2F009565BDC9606DEDAE /* TimerProvider.swift */,
+				41E724409585B7D3DFFCB8D6 /* TimerWidgetViews.swift */,
+			);
+			path = Widgets;
+			sourceTree = "<group>";
+		};
+		A9128A203AE35714B3B6FA44 = {
+			isa = PBXGroup;
+			children = (
+				3A00FD24095D602173E7B9F4 /* iOS */,
+				76E142AAC7AF9A0E8BB57F57 /* Mac */,
+				293C5719514F3D1984BEFBA1 /* Packages */,
+				8E1D92688F3C4D6164ADCE4B /* Widgets */,
+				E42741E689FF90B450F9A434 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E42741E689FF90B450F9A434 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B971DD648C895AAFFCB122A5 /* SpiderPomodoroiOS.app */,
+				BE8F8011CCE330A2986C7348 /* SpiderPomodoroMac.app */,
+				68DF063C7568B3925B7002D1 /* SpiderWidgetsiOS.appex */,
+				21DD5FDAE0EEF89FB2E8A1F4 /* SpiderWidgetsMac.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0BA6E286ECE10D0A58C8073F /* SpiderWidgetsMac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6497E6FD294185794B9B4CC1 /* Build configuration list for PBXNativeTarget "SpiderWidgetsMac" */;
+			buildPhases = (
+				F0E837FE02B855D1C1726494 /* Sources */,
+				283856FFC910B51C7245843D /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SpiderWidgetsMac;
+			packageProductDependencies = (
+				9CE0050063F405805DE36CA8 /* SpiderCore */,
+			);
+			productName = SpiderWidgetsMac;
+			productReference = 21DD5FDAE0EEF89FB2E8A1F4 /* SpiderWidgetsMac.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		1FBC17E5C5375E68C6F069A4 /* SpiderWidgetsiOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8294B5840BEC1A07A17AD843 /* Build configuration list for PBXNativeTarget "SpiderWidgetsiOS" */;
+			buildPhases = (
+				575DC4168C44AB8A073B053C /* Sources */,
+				68E591220C71232F9580DDC0 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SpiderWidgetsiOS;
+			packageProductDependencies = (
+				DF31B47B04650B2E96E62557 /* SpiderCore */,
+			);
+			productName = SpiderWidgetsiOS;
+			productReference = 68DF063C7568B3925B7002D1 /* SpiderWidgetsiOS.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		20042E768D252D0BC5B54225 /* SpiderPomodoroiOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 694FB31D289DCCA85BAAEC23 /* Build configuration list for PBXNativeTarget "SpiderPomodoroiOS" */;
+			buildPhases = (
+				67B07139D0CF3B5DE3A6D79B /* Sources */,
+				2606AE632D1D52762AA8B8FC /* Frameworks */,
+				6EC11D3DEFBC232AB6A33E1C /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				126581227930DB211C52AE43 /* PBXTargetDependency */,
+			);
+			name = SpiderPomodoroiOS;
+			packageProductDependencies = (
+				633AD24A45CA1C300BB63122 /* SpiderCore */,
+			);
+			productName = SpiderPomodoroiOS;
+			productReference = B971DD648C895AAFFCB122A5 /* SpiderPomodoroiOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+		E598C377849862816D4259F3 /* SpiderPomodoroMac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9EF919BC0312EC6AA1551C02 /* Build configuration list for PBXNativeTarget "SpiderPomodoroMac" */;
+			buildPhases = (
+				92EB2D436BF9FAA62E900394 /* Sources */,
+				5119108DDB53696A4FFE02C6 /* Frameworks */,
+				8058777EE980AD29FDB38229 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BE692C1CB858001DE3182C18 /* PBXTargetDependency */,
+			);
+			name = SpiderPomodoroMac;
+			packageProductDependencies = (
+				5DA5B5DD6D5F004EE97D15BC /* SpiderCore */,
+			);
+			productName = SpiderPomodoroMac;
+			productReference = BE8F8011CCE330A2986C7348 /* SpiderPomodoroMac.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		FBEC176D2BF6AAAB368779D2 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					0BA6E286ECE10D0A58C8073F = {
+						DevelopmentTeam = T25NT3U739;
+						ProvisioningStyle = Automatic;
+					};
+					1FBC17E5C5375E68C6F069A4 = {
+						DevelopmentTeam = T25NT3U739;
+						ProvisioningStyle = Automatic;
+					};
+					20042E768D252D0BC5B54225 = {
+						DevelopmentTeam = T25NT3U739;
+						ProvisioningStyle = Automatic;
+					};
+					E598C377849862816D4259F3 = {
+						DevelopmentTeam = T25NT3U739;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = CA13DB721F81AE41901B6FF8 /* Build configuration list for PBXProject "SpiderPomodoro" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = A9128A203AE35714B3B6FA44;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				62235E153D9DE31E8D60FBE4 /* XCLocalSwiftPackageReference "Packages/SpiderCore" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = E42741E689FF90B450F9A434 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E598C377849862816D4259F3 /* SpiderPomodoroMac */,
+				0BA6E286ECE10D0A58C8073F /* SpiderWidgetsMac */,
+				20042E768D252D0BC5B54225 /* SpiderPomodoroiOS */,
+				1FBC17E5C5375E68C6F069A4 /* SpiderWidgetsiOS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		575DC4168C44AB8A073B053C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5C8044285D9A5E7BD5B33AFD /* SpiderWidgetBundle.swift in Sources */,
+				8D5C293FFB90AA05A9E7D1FE /* TimerIntents.swift in Sources */,
+				E19720ACBD146D39CD63C47B /* TimerProvider.swift in Sources */,
+				845DFAF12619DFB8127E1B5E /* TimerWidgetViews.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		67B07139D0CF3B5DE3A6D79B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C8056D0AC40D1C5B09CA276B /* SettingsSheet.swift in Sources */,
+				83740F32696D3FAD4B5CF984 /* SpiderPomodoroApp.swift in Sources */,
+				3A6624837D35A9C9BA6D18FE /* TimerScreen.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		92EB2D436BF9FAA62E900394 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				813B0BD6B7DFB378E49CD702 /* HangingHeroView.swift in Sources */,
+				CE3C31FA7D453C7EA23AD082 /* HangingHeroWindow.swift in Sources */,
+				A41B163B037F45FA3C2AD09F /* HeroIcon.swift in Sources */,
+				104E3668700AD7D79773A19D /* HeroPrefs.swift in Sources */,
+				74BCF9A02CC35B3201841640 /* PhaseSound.swift in Sources */,
+				F1EECE4243CDF962BB93861D /* SpiderPomodoroApp.swift in Sources */,
+				D8EE74B3FBCFE794613FE976 /* StatusItemController.swift in Sources */,
+				3AD276075DA51ECE072A8959 /* TimerPanelView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F0E837FE02B855D1C1726494 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				28DB3AC4F387D8F304ECFE67 /* SpiderWidgetBundle.swift in Sources */,
+				8965FD9B428907212609C869 /* TimerIntents.swift in Sources */,
+				6C40FEB6377434EC84C10EE6 /* TimerProvider.swift in Sources */,
+				53E868DD5FB508C019BB8E05 /* TimerWidgetViews.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		126581227930DB211C52AE43 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1FBC17E5C5375E68C6F069A4 /* SpiderWidgetsiOS */;
+			targetProxy = 061EB992D2AC5D8F9867CC1E /* PBXContainerItemProxy */;
+		};
+		BE692C1CB858001DE3182C18 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0BA6E286ECE10D0A58C8073F /* SpiderWidgetsMac */;
+			targetProxy = D53448E60A213EA1D90CFEB8 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		2DA45D1291B1B11D8B7F9972 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = iOS/SpiderPomodoroiOS.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = iOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_ID)";
+				PRODUCT_MODULE_NAME = SpiderPomodoroiOS;
+				PRODUCT_NAME = "Spider Pomodoro";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		4EDBEF038D360828717EAE92 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = iOSWidgets/SpiderWidgetsiOS.entitlements;
+				INFOPLIST_FILE = iOSWidgets/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_ID).widgets";
+				PRODUCT_NAME = SpiderWidgets;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		84B63CFEE9B3F7C8C0B32289 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Mac/SpiderPomodoroMac.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = Mac/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_ID)";
+				PRODUCT_MODULE_NAME = SpiderPomodoroMac;
+				PRODUCT_NAME = "Spider Pomodoro";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		9CBAB8B1C02A400EFF6E9182 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				APP_BUNDLE_ID = com.mertcankarabas.spiderpomodoro;
+				APP_GROUP_ID = group.com.mertcankarabas.spiderpomodoro;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = T25NT3U739;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		A01E687FF7ED3AD40BDB87B5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = iOSWidgets/SpiderWidgetsiOS.entitlements;
+				INFOPLIST_FILE = iOSWidgets/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_ID).widgets";
+				PRODUCT_NAME = SpiderWidgets;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		A7A976BD25FE182A81EAFCB2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Mac/SpiderPomodoroMac.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = Mac/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_ID)";
+				PRODUCT_MODULE_NAME = SpiderPomodoroMac;
+				PRODUCT_NAME = "Spider Pomodoro";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		B54F53DB99E63042B9D00858 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = MacWidgets/SpiderWidgetsMac.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = MacWidgets/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_ID).widgets";
+				PRODUCT_NAME = SpiderWidgets;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		D94B64857A78D7C188EF96CC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = iOS/SpiderPomodoroiOS.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = iOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_ID)";
+				PRODUCT_MODULE_NAME = SpiderPomodoroiOS;
+				PRODUCT_NAME = "Spider Pomodoro";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		EE7D9802A61830A1D844C40D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = MacWidgets/SpiderWidgetsMac.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = MacWidgets/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_ID).widgets";
+				PRODUCT_NAME = SpiderWidgets;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		FE5FC607FE19A2C501E78CB3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				APP_BUNDLE_ID = com.mertcankarabas.spiderpomodoro;
+				APP_GROUP_ID = group.com.mertcankarabas.spiderpomodoro;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = T25NT3U739;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6497E6FD294185794B9B4CC1 /* Build configuration list for PBXNativeTarget "SpiderWidgetsMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B54F53DB99E63042B9D00858 /* Debug */,
+				EE7D9802A61830A1D844C40D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		694FB31D289DCCA85BAAEC23 /* Build configuration list for PBXNativeTarget "SpiderPomodoroiOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2DA45D1291B1B11D8B7F9972 /* Debug */,
+				D94B64857A78D7C188EF96CC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		8294B5840BEC1A07A17AD843 /* Build configuration list for PBXNativeTarget "SpiderWidgetsiOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4EDBEF038D360828717EAE92 /* Debug */,
+				A01E687FF7ED3AD40BDB87B5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		9EF919BC0312EC6AA1551C02 /* Build configuration list for PBXNativeTarget "SpiderPomodoroMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				84B63CFEE9B3F7C8C0B32289 /* Debug */,
+				A7A976BD25FE182A81EAFCB2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		CA13DB721F81AE41901B6FF8 /* Build configuration list for PBXProject "SpiderPomodoro" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9CBAB8B1C02A400EFF6E9182 /* Debug */,
+				FE5FC607FE19A2C501E78CB3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		62235E153D9DE31E8D60FBE4 /* XCLocalSwiftPackageReference "Packages/SpiderCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/SpiderCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		5DA5B5DD6D5F004EE97D15BC /* SpiderCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SpiderCore;
+		};
+		633AD24A45CA1C300BB63122 /* SpiderCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SpiderCore;
+		};
+		9CE0050063F405805DE36CA8 /* SpiderCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SpiderCore;
+		};
+		DF31B47B04650B2E96E62557 /* SpiderCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SpiderCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = FBEC176D2BF6AAAB368779D2 /* Project object */;
+}

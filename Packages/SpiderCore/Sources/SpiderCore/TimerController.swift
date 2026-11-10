@@ -1,0 +1,148 @@
+import Foundation
+import Observation
+
+/// A phase that ended while the app was watching, and when that was noticed.
+public struct FinishedPhase: Equatable, Sendable {
+    public let phase: Phase
+    public let at: Date
+
+    public init(phase: Phase, at: Date) {
+        self.phase = phase
+        self.at = at
+    }
+}
+
+/// Runs the timer for an app: keeps `now` fresh, moves to the next phase when one ends,
+/// saves every change and calls `onPhaseFinished` so the app can play a sound.
+@MainActor
+@Observable
+public final class TimerController {
+    public private(set) var state: TimerState
+    public private(set) var settings: PomodoroSettings
+    public private(set) var now: Date
+    /// Last phase that ended while running (not while the app was closed). Drives the hero's wave.
+    public private(set) var lastFinished: FinishedPhase?
+
+    @ObservationIgnored private let storage: TimerStorage
+    @ObservationIgnored private let clock: @MainActor () -> Date
+    @ObservationIgnored private let onPhaseFinished: @MainActor (Phase) -> Void
+    @ObservationIgnored private let onSave: @MainActor () -> Void
+    @ObservationIgnored private var tickTask: Task<Void, Never>?
+
+    /// - Parameter onSave: called after every saved change, so the app can refresh widgets
+    ///   and tell other processes.
+    public init(
+        storage: TimerStorage = TimerStorage(),
+        clock: @escaping @MainActor () -> Date = { Date() },
+        onPhaseFinished: @escaping @MainActor (Phase) -> Void = { _ in },
+        onSave: @escaping @MainActor () -> Void = {}
+    ) {
+        let now = clock()
+        let settings = storage.loadSettings() ?? .standard
+        self.storage = storage
+        self.clock = clock
+        self.onPhaseFinished = onPhaseFinished
+        self.onSave = onSave
+        self.settings = settings
+        self.state = storage.loadState() ?? .initial(settings: settings, now: now)
+        self.now = now
+        // Catch up on phases that ended while the app was closed, without a sound.
+        resolve(alert: false)
+    }
+
+    // MARK: - Read
+
+    public var remaining: TimeInterval { state.remaining(at: now) }
+    public var progress: Double { state.progress(at: now) }
+    public var clockText: String { TimeFormat.clock(remaining) }
+
+    // MARK: - Actions
+
+    public func toggle() { perform(.toggle) }
+    public func start() { perform(.start) }
+    public func pause() { perform(.pause) }
+    public func skip() { perform(.skip) }
+    public func reset() { perform(.reset) }
+
+    public func perform(_ action: TimerAction) {
+        let settings = settings
+        change { state, time in state.performing(action, at: time, settings: settings) }
+    }
+
+    public func update(settings newSettings: PomodoroSettings) {
+        guard newSettings != settings else { return }
+        settings = newSettings
+        storage.save(newSettings)
+        change { state, time in state.applying(newSettings, at: time) }
+        onSave()
+    }
+
+    /// Picks up changes another process saved (a widget button, for example).
+    public func reload() {
+        let savedSettings = storage.loadSettings() ?? settings
+        let savedState = storage.loadState() ?? state
+        if savedSettings != settings { settings = savedSettings }
+        if savedState != state { state = savedState }
+        now = clock()
+        resolve(alert: false)
+    }
+
+    // MARK: - Ticking
+
+    public func tick() {
+        // Nothing moves while idle or paused, so don't wake anyone watching `now`.
+        guard state.status == .running else { return }
+        now = clock()
+        resolve(alert: true)
+    }
+
+    public func startTicking() {
+        guard tickTask == nil else { return }
+        tickTask = Task { [weak self] in
+            while !Task.isCancelled {
+                guard let delay = self?.nextTickDelay() else { return }
+                try? await Task.sleep(for: .seconds(delay))
+                self?.tick()
+            }
+        }
+    }
+
+    public func stopTicking() {
+        tickTask?.cancel()
+        tickTask = nil
+    }
+
+    /// Wake right when the shown second changes, so the countdown never stutters.
+    func nextTickDelay() -> TimeInterval {
+        guard state.status == .running else { return 1 }
+        let fraction = remaining - remaining.rounded(.down)
+        return max(0.05, fraction + 0.01)
+    }
+
+    // MARK: - Private
+
+    private func change(_ transform: (TimerState, Date) -> TimerState) {
+        let time = clock()
+        now = time
+        resolve(alert: true)
+        let next = transform(state, time)
+        guard next != state else { return }
+        save(next)
+    }
+
+    private func resolve(alert: Bool) {
+        let (next, finished) = state.resolved(at: now, settings: settings)
+        guard next != state else { return }
+        save(next)
+        if alert, let last = finished.last {
+            lastFinished = FinishedPhase(phase: last, at: now)
+            onPhaseFinished(last)
+        }
+    }
+
+    private func save(_ next: TimerState) {
+        state = next
+        storage.save(next)
+        onSave()
+    }
+}
