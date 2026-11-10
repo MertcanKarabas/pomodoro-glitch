@@ -3,11 +3,19 @@ import SwiftUI
 
 struct SettingsSheet: View {
     let controller: TimerController
+    @Bindable var notifier: PhaseNotifier
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
             Form {
+                Section {
+                    Toggle("Alert when a phase ends", isOn: $notifier.isEnabled)
+                } header: {
+                    Text("This iPhone")
+                } footer: {
+                    Text("Sound and notification when work or a break ends, even with the app closed. Today: \(controller.today.text).")
+                }
                 Section("Minutes") {
                     minutesRow("Work", \.workMinutes)
                     minutesRow("Break", \.shortBreakMinutes)

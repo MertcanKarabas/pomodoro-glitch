@@ -13,4 +13,11 @@ public enum TimeFormat {
         }
         return String(format: "%d:%02d", minutes, secs)
     }
+
+    /// Whole minutes left, rounded up: 1500 s → 25, 61 s → 2, 59 s → 1, 0 → 0.
+    /// Half a second of slack so timeline steps landing a hair late don't show one too many.
+    public static func minutesLeft(_ seconds: TimeInterval) -> Int {
+        guard seconds > 0 else { return 0 }
+        return max(1, Int(((seconds - 0.5) / 60).rounded(.up)))
+    }
 }

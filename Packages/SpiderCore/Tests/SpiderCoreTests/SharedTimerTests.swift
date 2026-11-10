@@ -57,6 +57,21 @@ struct TimerTimelineTests {
         #expect(last.state.round == 2)
     }
 
+    @Test func stepsLineUpWithWholeMinutesLeft() {
+        // Started 20.3 s before "now": steps land when exactly 24, 23, ... minutes are left.
+        let running = TimerState.initial(settings: settings, now: t0).started(at: t0)
+        let now = t0.addingTimeInterval(20.3)
+        let moments = TimerTimeline.moments(from: running, settings: settings, now: now)
+        let end = at(25)
+        for moment in moments.dropFirst().prefix(24) {
+            let left = end.timeIntervalSince(moment.date)
+            #expect(abs(left - left.rounded()) < 0.001)
+            #expect(Int(left.rounded()) % 60 == 0)
+        }
+        #expect(TimeFormat.minutesLeft(running.remaining(at: now)) == 25)
+        #expect(TimeFormat.minutesLeft(running.remaining(at: moments[1].date)) == 24)
+    }
+
     @Test func savedStateIsCaughtUpFirst() {
         let running = TimerState.initial(settings: settings, now: t0).started(at: t0)
         let moments = TimerTimeline.moments(from: running, settings: settings, now: at(27))

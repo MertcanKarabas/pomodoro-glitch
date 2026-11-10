@@ -45,7 +45,10 @@ public enum TimerTimeline {
 
         while current.status == .running, let end = current.endsAt,
               end <= now.addingTimeInterval(horizon), moments.count < limit {
-            var time = cursor.addingTimeInterval(step)
+            // Line the steps up with whole minutes left (end − n·step), so a
+            // "minutes left" label is right for the whole step.
+            var time = end.addingTimeInterval(-step * (end.timeIntervalSince(cursor) / step).rounded(.down))
+            if time <= cursor { time = time.addingTimeInterval(step) }
             while time < end, moments.count < limit {
                 moments.append(TimerMoment(date: time, state: current, lastFinished: lastFinished))
                 time = time.addingTimeInterval(step)

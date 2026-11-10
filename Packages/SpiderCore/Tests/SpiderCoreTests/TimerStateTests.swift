@@ -55,7 +55,7 @@ struct TimerStateTests {
     @Test func workEndStartsShortBreakAtEndTime() {
         let running = TimerState.initial(settings: settings, now: t0).started(at: t0)
         let (state, finished) = running.resolved(at: at(26), settings: settings)
-        #expect(finished == [.work])
+        #expect(finished.map(\.phase) == [.work])
         #expect(state.phase == .shortBreak)
         #expect(state.status == .running)
         #expect(state.startedAt == at(25))
@@ -66,7 +66,7 @@ struct TimerStateTests {
     @Test func breakEndWaitsForNextWorkRound() {
         let running = TimerState.initial(settings: settings, now: t0).started(at: t0)
         let (state, finished) = running.resolved(at: at(40), settings: settings)
-        #expect(finished == [.work, .shortBreak])
+        #expect(finished.map(\.phase) == [.work, .shortBreak])
         #expect(state.phase == .work)
         #expect(state.status == .idle)
         #expect(state.round == 2)
@@ -104,7 +104,7 @@ struct TimerStateTests {
         let running = TimerState.initial(settings: auto, now: t0).started(at: t0)
         // work 25 + break 5 + work 25 = 55, then 2 min into round 2 break.
         let (state, finished) = running.resolved(at: at(57), settings: auto)
-        #expect(finished == [.work, .shortBreak, .work])
+        #expect(finished.map(\.phase) == [.work, .shortBreak, .work])
         #expect(state.phase == .shortBreak)
         #expect(state.round == 2)
         #expect(state.remaining(at: at(57)) == 3 * minute)
@@ -196,5 +196,10 @@ struct TimeFormatTests {
     ])
     func clock(seconds: Double, expected: String) {
         #expect(TimeFormat.clock(seconds) == expected)
+    }
+
+    @Test(arguments: [(1500.0, 25), (1500.3, 25), (1440.0, 24), (61.0, 2), (60.2, 1), (59.0, 1), (0.4, 1), (0.0, 0)])
+    func minutesLeft(seconds: Double, expected: Int) {
+        #expect(TimeFormat.minutesLeft(seconds) == expected)
     }
 }

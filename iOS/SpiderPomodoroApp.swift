@@ -2,6 +2,7 @@ import OSLog
 import SpiderCore
 import SwiftUI
 import UIKit
+import UserNotifications
 import WidgetKit
 
 @main
@@ -11,7 +12,7 @@ struct SpiderPomodoroApp: App {
 
     var body: some Scene {
         WindowGroup {
-            TimerScreen(controller: appDelegate.model.controller)
+            TimerScreen(controller: appDelegate.model.controller, notifier: appDelegate.model.notifier)
                 .onChange(of: scenePhase) { _, phase in
                     // Widget buttons or the Mac may have changed the timer while we were away.
                     if phase == .active { appDelegate.model.catchUp() }
@@ -24,7 +25,7 @@ struct SpiderPomodoroApp: App {
 }
 
 @MainActor
-final class AppDelegate: NSObject, UIApplicationDelegate {
+final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     let model = AppModel()
     private let log = Logger(subsystem: "SpiderPomodoro", category: "sync")
 
@@ -35,7 +36,20 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         // iCloud wakes the app with a silent push when the Mac changes the timer.
         application.registerForRemoteNotifications()
         model.sync?.start()
+        // Phase-end alerts.
+        UNUserNotificationCenter.current().delegate = self
+        if model.notifier.isEnabled {
+            Task { await model.notifier.requestPermission() }
+        }
         return true
+    }
+
+    /// Show phase-end alerts even while the app is open.
+    nonisolated func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification
+    ) async -> UNNotificationPresentationOptions {
+        [.banner, .sound, .list]
     }
 
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
@@ -62,6 +76,7 @@ final class AppModel {
     let controller: TimerController
     let sync: SyncCoordinator?
     let liveActivity: LiveActivityManager
+    let notifier: PhaseNotifier
 
     init() {
         let controller = TimerController(
@@ -77,6 +92,7 @@ final class AppModel {
         self.controller = controller
         sync = CloudSync.shared.map { SyncCoordinator(controller: controller, cloud: $0) }
         liveActivity = LiveActivityManager(controller: controller)
+        notifier = PhaseNotifier(controller: controller, playsSound: true)
         controller.startTicking()
         // A widget or Live Activity button changed the timer.
         SharedTimer.observeChanges { [controller] in controller.reload() }

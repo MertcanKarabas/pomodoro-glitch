@@ -24,6 +24,11 @@ public final class TimerController {
     public private(set) var lastFinished: FinishedPhase?
     /// When a person last changed the timer or its settings, here or on another device.
     public private(set) var changedAt: Date
+    /// Finished work rounds seen on this device (last few weeks).
+    public private(set) var focusLog: [FocusEntry]
+
+    /// Rounds and focus minutes finished today.
+    public var today: FocusSummary { FocusLog.summary(of: focusLog, on: Date()) }
 
     /// Called after a person changes the timer on this device (not for syncing or phases
     /// ending by themselves), so it can be sent to the other devices.
@@ -52,6 +57,7 @@ public final class TimerController {
         self.settings = settings
         self.state = storage.loadState() ?? .initial(settings: settings, now: now)
         self.changedAt = storage.loadChangedAt()
+        self.focusLog = storage.loadFocusLog()
         self.now = now
         // Catch up on phases that ended while the app was closed, without a sound.
         resolve(alert: false)
@@ -95,6 +101,8 @@ public final class TimerController {
         if savedSettings != settings { settings = savedSettings }
         if savedState != state { state = savedState }
         if savedChangedAt != changedAt { changedAt = savedChangedAt }
+        let savedLog = storage.loadFocusLog()
+        if savedLog != focusLog { focusLog = savedLog }
         now = clock()
         resolve(alert: false)
     }
@@ -179,10 +187,13 @@ public final class TimerController {
     private func resolve(alert: Bool) {
         let (next, finished) = state.resolved(at: now, settings: settings)
         guard next != state else { return }
+        // Count finished rounds even when catching up quietly.
+        let log = storage.recordFinished(finished, now: now)
+        if log != focusLog { focusLog = log }
         save(next)
         if alert, let last = finished.last {
-            lastFinished = FinishedPhase(phase: last, at: now)
-            onPhaseFinished(last)
+            lastFinished = FinishedPhase(phase: last.phase, at: now)
+            onPhaseFinished(last.phase)
         }
     }
 

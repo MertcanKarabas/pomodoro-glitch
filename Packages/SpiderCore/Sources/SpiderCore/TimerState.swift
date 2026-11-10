@@ -1,5 +1,20 @@
 import Foundation
 
+/// A phase that ran to its end (not skipped or reset).
+public struct EndedPhase: Codable, Equatable, Sendable {
+    public let phase: Phase
+    public let round: Int
+    public let endedAt: Date
+    public let duration: TimeInterval
+
+    public init(phase: Phase, round: Int, endedAt: Date, duration: TimeInterval) {
+        self.phase = phase
+        self.round = round
+        self.endedAt = endedAt
+        self.duration = duration
+    }
+}
+
 /// The whole timer in one small value. Devices share this and each one works out
 /// the time left from `startedAt`, so nothing has to tick in sync.
 public struct TimerState: Codable, Equatable, Sendable {
@@ -115,12 +130,12 @@ public struct TimerState: Codable, Equatable, Sendable {
 
     /// Moves past every phase that has ended by `now`.
     /// Every device gets the same answer from the same state, so this never needs syncing.
-    public func resolved(at now: Date, settings: PomodoroSettings) -> (state: TimerState, finished: [Phase]) {
+    public func resolved(at now: Date, settings: PomodoroSettings) -> (state: TimerState, finished: [EndedPhase]) {
         var current = self
-        var finished: [Phase] = []
+        var finished: [EndedPhase] = []
         // The cap only guards against odd settings; normal use loops at most a few times.
         while let end = current.endsAt, end <= now, finished.count < 1_000 {
-            finished.append(current.phase)
+            finished.append(EndedPhase(phase: current.phase, round: current.round, endedAt: end, duration: current.duration))
             current = current.advanced(from: end, settings: settings)
         }
         return (current, finished)

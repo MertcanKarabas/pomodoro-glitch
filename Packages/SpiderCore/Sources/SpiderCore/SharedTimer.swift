@@ -51,9 +51,9 @@ public enum SharedTimer {
     ) -> SyncSnapshot {
         let settings = storage.loadSettings() ?? .standard
         let saved = storage.loadState() ?? .initial(settings: settings, now: now)
-        let next = saved
-            .resolved(at: now, settings: settings).state
-            .performing(action, at: now, settings: settings)
+        let (caughtUp, finished) = saved.resolved(at: now, settings: settings)
+        storage.recordFinished(finished, now: now)
+        let next = caughtUp.performing(action, at: now, settings: settings)
         storage.save(next)
         storage.saveChange(at: now, by: storage.deviceID)
         postChange()

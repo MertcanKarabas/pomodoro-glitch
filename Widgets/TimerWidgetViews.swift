@@ -41,8 +41,7 @@ struct SmallTimerView: View {
             VStack(alignment: .leading, spacing: 6) {
                 PhaseTag(phase: state.phase)
                 Spacer(minLength: 0)
-                CountdownText(state: state, date: entry.date)
-                    .font(.system(size: 30, weight: .semibold, design: .rounded))
+                MinutesLeftText(state: state, date: entry.date, size: 32)
                 PhaseProgress(state: state, date: entry.date)
                 HStack {
                     RoundDots(completed: state.completedRounds, total: entry.settings.rounds, color: state.phase.color, size: 5)
@@ -76,8 +75,7 @@ struct MediumTimerView: View {
                     Spacer()
                     RoundDots(completed: state.completedRounds, total: entry.settings.rounds, color: state.phase.color, size: 6)
                 }
-                CountdownText(state: state, date: entry.date)
-                    .font(.system(size: 40, weight: .semibold, design: .rounded))
+                MinutesLeftText(state: state, date: entry.date, size: 42)
                 PhaseProgress(state: state, date: entry.date)
                 Text(state.statusLine(settings: entry.settings))
                     .font(.caption)
@@ -115,8 +113,7 @@ struct RectangularTimerView: View {
         VStack(alignment: .leading, spacing: 2) {
             Label(state.phase.title, systemImage: state.phase.symbolName)
                 .font(.headline)
-            CountdownText(state: state, date: entry.date)
-                .font(.title2.weight(.semibold))
+            MinutesLeftText(state: state, date: entry.date, size: 22)
             PhaseProgress(state: state, date: entry.date)
         }
     }
@@ -129,23 +126,15 @@ struct CircularTimerView: View {
         let state = entry.state
         ZStack {
             AccessoryWidgetBackground()
-            if state.status == .running, let start = state.startedAt, let end = state.endsAt, end > entry.date {
-                ProgressView(timerInterval: start...end, countsDown: true) {
-                    EmptyView()
-                } currentValueLabel: {
-                    Image(systemName: state.phase.symbolName)
-                }
-                .progressViewStyle(.circular)
-            } else {
-                Gauge(value: 1 - state.progress(at: entry.date)) {
-                    EmptyView()
-                } currentValueLabel: {
-                    Image(systemName: state.status == .paused ? "pause.fill" : state.phase.symbolName)
-                }
-                .gaugeStyle(.accessoryCircularCapacity)
+            Gauge(value: 1 - state.progress(at: entry.date)) {
+                EmptyView()
+            } currentValueLabel: {
+                Text("\(TimeFormat.minutesLeft(state.remaining(at: entry.date)))")
+                    .font(.system(.title3, design: .rounded).weight(.semibold))
             }
+            .gaugeStyle(.accessoryCircularCapacity)
         }
-        .accessibilityLabel("\(state.phase.title), \(TimeFormat.clock(state.remaining(at: entry.date))) left")
+        .accessibilityLabel("\(state.phase.title), \(TimeFormat.minutesLeft(state.remaining(at: entry.date))) minutes left")
     }
 }
 
@@ -154,54 +143,44 @@ struct InlineTimerView: View {
 
     var body: some View {
         let state = entry.state
-        if state.status == .running, let end = state.endsAt, end > entry.date {
-            Text("\(state.phase.title) ") + Text(timerInterval: entry.date...end, countsDown: true)
-        } else {
-            Text("\(state.phase.title) · \(TimeFormat.clock(state.remaining(at: entry.date)))")
-        }
+        let minutes = TimeFormat.minutesLeft(state.remaining(at: entry.date))
+        Text(state.status == .paused
+             ? "\(state.phase.title) paused · \(minutes) min left"
+             : "\(state.phase.title) · \(minutes) min left")
     }
 }
 #endif
 
 // MARK: - Pieces
 
-/// Ticks by itself while running, so the widget doesn't need a refresh every second.
-struct CountdownText: View {
+/// "18 min". Widgets get a fresh picture at every whole minute left, so plain minutes are
+/// always right, even where the system doesn't animate live countdown text.
+struct MinutesLeftText: View {
     let state: TimerState
     let date: Date
+    let size: CGFloat
 
     var body: some View {
-        Group {
-            if state.status == .running, let start = state.startedAt, let end = state.endsAt, end > date {
-                Text(timerInterval: start...end, countsDown: true)
-            } else {
-                Text(TimeFormat.clock(state.remaining(at: date)))
-            }
-        }
-        .monospacedDigit()
-        .lineLimit(1)
+        let minutes = TimeFormat.minutesLeft(state.remaining(at: date))
+        (Text("\(minutes)")
+            .font(.system(size: size, weight: .semibold, design: .rounded))
+         + Text(" min")
+            .font(.system(size: size * 0.45, weight: .semibold, design: .rounded)))
+            .monospacedDigit()
+            .lineLimit(1)
+            .accessibilityLabel("\(minutes) minutes left")
     }
 }
 
-/// Fills up by itself while running.
+/// Moves on at each minute step, like the minutes text.
 struct PhaseProgress: View {
     let state: TimerState
     let date: Date
 
     var body: some View {
-        Group {
-            if state.status == .running, let start = state.startedAt, let end = state.endsAt, end > date {
-                ProgressView(timerInterval: start...end, countsDown: false) {
-                    EmptyView()
-                } currentValueLabel: {
-                    EmptyView()
-                }
-            } else {
-                ProgressView(value: state.progress(at: date))
-            }
-        }
-        .progressViewStyle(.linear)
-        .tint(state.phase.color)
+        ProgressView(value: state.progress(at: date))
+            .progressViewStyle(.linear)
+            .tint(state.phase.color)
     }
 }
 

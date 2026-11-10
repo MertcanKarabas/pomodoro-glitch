@@ -5,6 +5,7 @@ import SwiftUI
 /// Dynamic Island) and drops as work time runs out; the timer sits at the bottom.
 struct TimerScreen: View {
     let controller: TimerController
+    let notifier: PhaseNotifier
     @State private var showSettings = false
 
     var body: some View {
@@ -45,9 +46,16 @@ struct TimerScreen: View {
                     ProgressView(value: controller.progress)
                         .tint(color)
 
-                    Text(state.statusLine(settings: controller.settings))
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
+                    HStack {
+                        Text(state.statusLine(settings: controller.settings))
+                        Spacer()
+                        Label("Today: \(controller.today.text)", systemImage: "checkmark.seal")
+                            .labelStyle(.titleAndIcon)
+                    }
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
 
                     HStack(spacing: 12) {
                         Button {
@@ -99,7 +107,7 @@ struct TimerScreen: View {
             .accessibilityLabel("Settings")
         }
         .sheet(isPresented: $showSettings) {
-            SettingsSheet(controller: controller)
+            SettingsSheet(controller: controller, notifier: notifier)
                 .presentationDetents([.medium, .large])
         }
         .preferredColorScheme(.dark)

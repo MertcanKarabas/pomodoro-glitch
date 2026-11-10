@@ -2,6 +2,7 @@ import AppKit
 import OSLog
 import SpiderCore
 import SwiftUI
+import UserNotifications
 import WidgetKit
 
 @main
@@ -15,10 +16,11 @@ struct SpiderPomodoroApp: App {
 }
 
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
     private let controller: TimerController
     private let heroPrefs = HeroPrefs()
     private let sync: SyncCoordinator?
+    private let notifier: PhaseNotifier
     private var statusItem: StatusItemController?
     private var heroWindow: HangingHeroWindow?
     private var pullTimer: Timer?
@@ -35,6 +37,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
         self.controller = controller
         sync = CloudSync.shared.map { SyncCoordinator(controller: controller, cloud: $0) }
+        // Banners only: the Mac plays its own sound while the app runs.
+        notifier = PhaseNotifier(controller: controller, playsSound: false)
         super.init()
         controller.startTicking()
         // A desktop widget button changed the timer (the widget sends it to iCloud itself).
@@ -42,7 +46,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        let statusItem = StatusItemController(controller: controller, heroPrefs: heroPrefs)
+        UNUserNotificationCenter.current().delegate = self
+        if notifier.isEnabled {
+            Task { await notifier.requestPermission() }
+        }
+
+        let statusItem = StatusItemController(controller: controller, heroPrefs: heroPrefs, notifier: notifier)
         let heroView = HangingHeroView(
             frame: NSRect(origin: .zero, size: HangingHeroWindow.size),
             controller: controller,
@@ -67,6 +76,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         ) { [weak self] _ in
             MainActor.assumeIsolated { self?.pullFromCloud() }
         }
+    }
+
+    /// Show phase-end banners even though the app counts as "running".
+    nonisolated func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification
+    ) async -> UNNotificationPresentationOptions {
+        [.banner, .list]
     }
 
     func application(_ application: NSApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {

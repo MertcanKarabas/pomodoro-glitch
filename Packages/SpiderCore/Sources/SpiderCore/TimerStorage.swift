@@ -9,6 +9,7 @@ public final class TimerStorage {
     private let changedAtKey = "changedAt.v1"
     private let changedByKey = "changedBy.v1"
     private let deviceIDKey = "deviceID.v1"
+    private let focusLogKey = "focusLog.v1"
 
     public init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -29,6 +30,18 @@ public final class TimerStorage {
     public func saveChange(at date: Date, by device: String) {
         defaults.set(date, forKey: changedAtKey)
         defaults.set(device, forKey: changedByKey)
+    }
+
+    /// Finished work rounds (last few weeks).
+    public func loadFocusLog() -> [FocusEntry] { load([FocusEntry].self, key: focusLogKey) ?? [] }
+
+    /// Adds newly finished rounds and returns the updated log.
+    @discardableResult
+    public func recordFinished(_ ended: [EndedPhase], now: Date) -> [FocusEntry] {
+        let current = loadFocusLog()
+        let updated = FocusLog.adding(ended, to: current, now: now)
+        if updated != current { save(updated, key: focusLogKey) }
+        return updated
     }
 
     /// A random ID for this device, made on first use. Shared by the app and its widgets.

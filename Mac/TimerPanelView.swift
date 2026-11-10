@@ -5,11 +5,13 @@ import SwiftUI
 struct TimerPanelView: View {
     let controller: TimerController
     let heroPrefs: HeroPrefs
+    let notifier: PhaseNotifier
     @State private var showSettings: Bool
 
-    init(controller: TimerController, heroPrefs: HeroPrefs, showSettings: Bool = false) {
+    init(controller: TimerController, heroPrefs: HeroPrefs, notifier: PhaseNotifier, showSettings: Bool = false) {
         self.controller = controller
         self.heroPrefs = heroPrefs
+        self.notifier = notifier
         _showSettings = State(initialValue: showSettings)
     }
 
@@ -35,9 +37,12 @@ struct TimerPanelView: View {
             ProgressView(value: controller.progress)
                 .tint(color)
 
-            Text(state.statusLine(settings: controller.settings))
-                .font(.callout)
-                .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(state.statusLine(settings: controller.settings))
+                Label("Today: \(controller.today.text)", systemImage: "checkmark.seal")
+            }
+            .font(.callout)
+            .foregroundStyle(.secondary)
 
             HStack(spacing: 8) {
                 Button {
@@ -63,7 +68,7 @@ struct TimerPanelView: View {
             Divider()
 
             DisclosureGroup("Settings", isExpanded: $showSettings) {
-                SettingsForm(controller: controller, heroPrefs: heroPrefs)
+                SettingsForm(controller: controller, heroPrefs: heroPrefs, notifier: notifier)
             }
 
             Divider()
@@ -83,9 +88,11 @@ struct TimerPanelView: View {
 private struct SettingsForm: View {
     let controller: TimerController
     @Bindable var heroPrefs: HeroPrefs
+    @Bindable var notifier: PhaseNotifier
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
+            Toggle("Alert when a phase ends", isOn: $notifier.isEnabled)
             Toggle("Hanging hero on desktop", isOn: $heroPrefs.showHero)
             Picker("Hero size", selection: $heroPrefs.size) {
                 ForEach(HeroPrefs.Size.allCases) { size in
