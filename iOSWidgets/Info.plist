@@ -27,5 +27,7 @@
 	</dict>
 	<key>SpiderAppGroup</key>
 	<string>$(APP_GROUP_ID)</string>
+	<key>SpiderCloudContainer</key>
+	<string>$(CLOUD_CONTAINER_ID)</string>
 </dict>
 </plist>

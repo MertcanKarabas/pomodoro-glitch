@@ -47,6 +47,9 @@ So Mac and iPhone always show the same number, even offline, and only need to ta
 - When one device changes it, iCloud sends a silent push to the other device.
 - That device saves the new state, refreshes its widgets and updates the Dynamic Island.
 
+Each device stores when the last button press happened and on which device (a random ID, not its name).
+On every check, the newer side wins; an exact tie goes to the server copy so all devices agree.
+
 Known limits (Apple rules, not bugs):
 - If you start the timer on Mac, the iPhone widget usually updates within seconds, but iOS can delay it when the iPhone is asleep or in Low Power Mode.
 - iOS does not let an app start a Dynamic Island timer from the background without our own push server. Version 1: Dynamic Island starts when you start on iPhone or open the iPhone app. Later option: small push server so a Mac start also starts it on iPhone.
@@ -108,7 +111,7 @@ open SpiderPomodoro.xcodeproj                 # then pick SpiderPomodoroMac and 
 1. **Timer core + Mac menu bar.** Timer logic with tests. Menu bar shows hero icon and minutes left, with start / pause / skip. *(Built 2026-11-10: 26 tests pass, app runs. Not yet tried by hand.)*
 2. **Hero art + hanging hero on Mac.** Draw hero and poses. Transparent window under menu bar, hero drops during work, climbs during break. *(Built 2026-11-10: 4 poses, hangs under the menu bar icon and follows it between displays, on/off and size in Settings. CPU: ~0% idle or paused, ~2.4% while running, almost all from macOS redrawing the menu bar text each second. Not yet tried by hand.)*
 3. **Widgets.** iPhone app, iPhone home widget, Mac desktop widget, with buttons inside. *(Built 2026-11-10: iPhone app and widgets tested in the Simulator: app runs, hero hangs from the Dynamic Island, widget shows the live timer, widget Pause button pauses the shared timer. Lock Screen widgets built, not yet tried. Mac app and desktop widget signed with team T25NT3U739 and sandboxed; macOS lists the widget, not yet tried by hand. iPhone app signed for your iPhone, not yet installed (phone was locked). 43 tests pass.)*
-4. **iCloud sync.** Start on one device, see it on the other.
+4. **iCloud sync.** Start on one device, see it on the other. *(Built 2026-11-10: one record in private iCloud (container `iCloud.com.mertcankarabas.spiderpomodoro`, zone `SpiderTimer`), newest button press wins. Tested on real devices: Mac → iPhone follows within seconds; iPhone → Mac arrived, and the Mac now also receives iCloud pushes. Backups: Mac checks every minute, after wake and when the panel opens; iPhone checks when the app opens. Widget buttons push to iCloud themselves. New `spiderpomodoro://start|pause|toggle|skip|reset` links. 54 tests pass. iPhone still has the build before the last two small fixes.)*
 5. **Dynamic Island + Lock Screen.** Hero hangs from the island while timer runs.
 6. **Polish.** Sounds, notifications, settings for durations, daily count of finished rounds.
 

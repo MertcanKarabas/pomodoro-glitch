@@ -16,6 +16,8 @@ settings:
     APP_BUNDLE_ID: com.mertcankarabas.spiderpomodoro
     # Shared storage between each app and its widgets.
     APP_GROUP_ID: group.com.mertcankarabas.spiderpomodoro
+    # iCloud container for syncing between devices.
+    CLOUD_CONTAINER_ID: iCloud.com.mertcankarabas.spiderpomodoro
     SWIFT_VERSION: "6.0"
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
@@ -42,12 +44,20 @@ targets:
         LSApplicationCategoryType: public.app-category.productivity
         # Menu bar only: no Dock icon.
         LSUIElement: true
+        CFBundleURLTypes:
+          - CFBundleURLName: $(APP_BUNDLE_ID)
+            CFBundleURLSchemes: [spiderpomodoro]
         SpiderAppGroup: $(APP_GROUP_ID)
+        SpiderCloudContainer: $(CLOUD_CONTAINER_ID)
     entitlements:
       path: Mac/SpiderPomodoroMac.entitlements
       properties:
         com.apple.security.app-sandbox: true
         com.apple.security.application-groups: [$(APP_GROUP_ID)]
+        com.apple.security.network.client: true
+        com.apple.developer.icloud-container-identifiers: [$(CLOUD_CONTAINER_ID)]
+        com.apple.developer.icloud-services: [CloudKit]
+        com.apple.developer.aps-environment: development
     settings:
       base:
         PRODUCT_NAME: Spider Pomodoro
@@ -66,6 +76,7 @@ targets:
       properties:
         CFBundleDisplayName: Spider Pomodoro
         SpiderAppGroup: $(APP_GROUP_ID)
+        SpiderCloudContainer: $(CLOUD_CONTAINER_ID)
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
     entitlements:
@@ -73,6 +84,9 @@ targets:
       properties:
         com.apple.security.app-sandbox: true
         com.apple.security.application-groups: [$(APP_GROUP_ID)]
+        com.apple.security.network.client: true
+        com.apple.developer.icloud-container-identifiers: [$(CLOUD_CONTAINER_ID)]
+        com.apple.developer.icloud-services: [CloudKit]
     settings:
       base:
         PRODUCT_NAME: SpiderWidgets
@@ -95,15 +109,24 @@ targets:
       properties:
         CFBundleDisplayName: Spider Pomodoro
         SpiderAppGroup: $(APP_GROUP_ID)
+        SpiderCloudContainer: $(CLOUD_CONTAINER_ID)
         UILaunchScreen: {}
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         UIUserInterfaceStyle: Dark
+        # iCloud wakes the app when another device changes the timer.
+        UIBackgroundModes: [remote-notification]
+        CFBundleURLTypes:
+          - CFBundleURLName: $(APP_BUNDLE_ID)
+            CFBundleURLSchemes: [spiderpomodoro]
     entitlements:
       path: iOS/SpiderPomodoroiOS.entitlements
       properties:
         com.apple.security.application-groups: [$(APP_GROUP_ID)]
+        com.apple.developer.icloud-container-identifiers: [$(CLOUD_CONTAINER_ID)]
+        com.apple.developer.icloud-services: [CloudKit]
+        aps-environment: development
     settings:
       base:
         PRODUCT_NAME: Spider Pomodoro
@@ -122,12 +145,15 @@ targets:
       properties:
         CFBundleDisplayName: Spider Pomodoro
         SpiderAppGroup: $(APP_GROUP_ID)
+        SpiderCloudContainer: $(CLOUD_CONTAINER_ID)
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
     entitlements:
       path: iOSWidgets/SpiderWidgetsiOS.entitlements
       properties:
         com.apple.security.application-groups: [$(APP_GROUP_ID)]
+        com.apple.developer.icloud-container-identifiers: [$(CLOUD_CONTAINER_ID)]
+        com.apple.developer.icloud-services: [CloudKit]
     settings:
       base:
         PRODUCT_NAME: SpiderWidgets

@@ -42,16 +42,21 @@ public enum SharedTimer {
     }
 
     /// Applies a button press made outside the app (a widget button) to the saved timer.
+    /// Returns the result, ready to send to the other devices.
     @discardableResult
-    public static func perform(_ action: TimerAction, at now: Date = Date()) -> TimerState {
-        let storage = makeStorage()
+    public static func perform(
+        _ action: TimerAction,
+        at now: Date = Date(),
+        storage: TimerStorage = makeStorage()
+    ) -> SyncSnapshot {
         let settings = storage.loadSettings() ?? .standard
         let saved = storage.loadState() ?? .initial(settings: settings, now: now)
         let next = saved
             .resolved(at: now, settings: settings).state
             .performing(action, at: now, settings: settings)
         storage.save(next)
+        storage.saveChange(at: now, by: storage.deviceID)
         postChange()
-        return next
+        return SyncSnapshot(state: next, settings: settings, changedAt: now, changedBy: storage.deviceID)
     }
 }

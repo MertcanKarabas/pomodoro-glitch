@@ -12,6 +12,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     private let controller: TimerController
     private let heroPrefs: HeroPrefs
     private let popover = NSPopover()
+    /// Called when the panel opens, so the app can check iCloud for a fresher timer.
+    var onOpen: (() -> Void)?
 
     init(controller: TimerController, heroPrefs: HeroPrefs) {
         self.controller = controller
@@ -54,6 +56,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
             NSApp.activate()
             panel.view.window?.makeKey()
+            onOpen?()
         }
     }
 

@@ -18,6 +18,17 @@
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>$(APP_BUNDLE_ID)</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>spiderpomodoro</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>LSApplicationCategoryType</key>
@@ -26,5 +37,7 @@
 	<true/>
 	<key>SpiderAppGroup</key>
 	<string>$(APP_GROUP_ID)</string>
+	<key>SpiderCloudContainer</key>
+	<string>$(CLOUD_CONTAINER_ID)</string>
 </dict>
 </plist>

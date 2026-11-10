@@ -22,6 +22,12 @@ public final class TimerController {
     public private(set) var now: Date
     /// Last phase that ended while running (not while the app was closed). Drives the hero's wave.
     public private(set) var lastFinished: FinishedPhase?
+    /// When a person last changed the timer or its settings, here or on another device.
+    public private(set) var changedAt: Date
+
+    /// Called after a person changes the timer on this device (not for syncing or phases
+    /// ending by themselves), so it can be sent to the other devices.
+    @ObservationIgnored public var onUserChange: (@MainActor () -> Void)?
 
     @ObservationIgnored private let storage: TimerStorage
     @ObservationIgnored private let clock: @MainActor () -> Date
@@ -45,6 +51,7 @@ public final class TimerController {
         self.onSave = onSave
         self.settings = settings
         self.state = storage.loadState() ?? .initial(settings: settings, now: now)
+        self.changedAt = storage.loadChangedAt()
         self.now = now
         // Catch up on phases that ended while the app was closed, without a sound.
         resolve(alert: false)
@@ -66,7 +73,9 @@ public final class TimerController {
 
     public func perform(_ action: TimerAction) {
         let settings = settings
-        change { state, time in state.performing(action, at: time, settings: settings) }
+        if change({ state, time in state.performing(action, at: time, settings: settings) }) {
+            markUserChange()
+        }
     }
 
     public func update(settings newSettings: PomodoroSettings) {
@@ -75,16 +84,50 @@ public final class TimerController {
         storage.save(newSettings)
         change { state, time in state.applying(newSettings, at: time) }
         onSave()
+        markUserChange()
     }
 
     /// Picks up changes another process saved (a widget button, for example).
     public func reload() {
         let savedSettings = storage.loadSettings() ?? settings
         let savedState = storage.loadState() ?? state
+        let savedChangedAt = storage.loadChangedAt()
         if savedSettings != settings { settings = savedSettings }
         if savedState != state { state = savedState }
+        if savedChangedAt != changedAt { changedAt = savedChangedAt }
         now = clock()
         resolve(alert: false)
+    }
+
+    // MARK: - Sync
+
+    /// This device's timer as sent to the other devices.
+    public var snapshot: SyncSnapshot {
+        SyncSnapshot(state: state, settings: settings, changedAt: changedAt, changedBy: storage.loadChangedBy())
+    }
+
+    /// Takes a newer timer from another device.
+    public func apply(_ remote: SyncSnapshot) {
+        if remote.settings != settings {
+            settings = remote.settings
+            storage.save(remote.settings)
+        }
+        changedAt = remote.changedAt
+        storage.saveChange(at: remote.changedAt, by: remote.changedBy)
+        now = clock()
+        if remote.state != state {
+            save(remote.state)
+        } else {
+            onSave()
+        }
+        // Phases that ended on the way here end quietly; the other device already rang.
+        resolve(alert: false)
+    }
+
+    private func markUserChange() {
+        changedAt = now
+        storage.saveChange(at: now, by: storage.deviceID)
+        onUserChange?()
     }
 
     // MARK: - Ticking
@@ -121,13 +164,16 @@ public final class TimerController {
 
     // MARK: - Private
 
-    private func change(_ transform: (TimerState, Date) -> TimerState) {
+    /// Returns whether the timer changed.
+    @discardableResult
+    private func change(_ transform: (TimerState, Date) -> TimerState) -> Bool {
         let time = clock()
         now = time
         resolve(alert: true)
         let next = transform(state, time)
-        guard next != state else { return }
+        guard next != state else { return false }
         save(next)
+        return true
     }
 
     private func resolve(alert: Bool) {
