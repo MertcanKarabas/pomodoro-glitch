@@ -17,6 +17,7 @@
 		5C8044285D9A5E7BD5B33AFD /* SpiderWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91305E8FF842BED3D5C11635 /* SpiderWidgetBundle.swift */; };
 		6A942687A1F464583722E2C7 /* SpiderWidgetsiOS.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 68DF063C7568B3925B7002D1 /* SpiderWidgetsiOS.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		6C40FEB6377434EC84C10EE6 /* TimerProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850D2F009565BDC9606DEDAE /* TimerProvider.swift */; };
+		7410BD81140CFE5F7DECDCCA /* LiveActivityViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD6F46E1648973CD7384619 /* LiveActivityViews.swift */; };
 		74BCF9A02CC35B3201841640 /* PhaseSound.swift in Sources */ = {isa = PBXBuildFile; fileRef = 782530EF6BAA2FAA7EAB12D7 /* PhaseSound.swift */; };
 		813B0BD6B7DFB378E49CD702 /* HangingHeroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27A8F8BB34E16D19C947607B /* HangingHeroView.swift */; };
 		83740F32696D3FAD4B5CF984 /* SpiderPomodoroApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CBCD63F6458595F39A3E6D7 /* SpiderPomodoroApp.swift */; };
@@ -24,14 +25,17 @@
 		8965FD9B428907212609C869 /* TimerIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = C21E95B80A8564B3675A6493 /* TimerIntents.swift */; };
 		8D5C293FFB90AA05A9E7D1FE /* TimerIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = C21E95B80A8564B3675A6493 /* TimerIntents.swift */; };
 		99C3A1F5DD0E5A97367C2DF8 /* SpiderWidgetsMac.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 21DD5FDAE0EEF89FB2E8A1F4 /* SpiderWidgetsMac.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		9DC16EEE4A52CDD069E87D8B /* LiveActivityViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD6F46E1648973CD7384619 /* LiveActivityViews.swift */; };
 		A33232EC98A36F2393FBE010 /* SpiderCore in Frameworks */ = {isa = PBXBuildFile; productRef = DF31B47B04650B2E96E62557 /* SpiderCore */; };
 		A41B163B037F45FA3C2AD09F /* HeroIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020657CDDEBB4AB43E0B8751 /* HeroIcon.swift */; };
+		AEEFE476E6A53B177130A5AB /* AppIntentsRegistration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB943C7A40004CCDE15F36E /* AppIntentsRegistration.swift */; };
 		C8056D0AC40D1C5B09CA276B /* SettingsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631E668C74943045BE269488 /* SettingsSheet.swift */; };
 		CE3C31FA7D453C7EA23AD082 /* HangingHeroWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03F7D061DF1EB7DDA25C37CE /* HangingHeroWindow.swift */; };
 		D8EE74B3FBCFE794613FE976 /* StatusItemController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 310CCD558A7A71D5395D47B9 /* StatusItemController.swift */; };
 		E19720ACBD146D39CD63C47B /* TimerProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850D2F009565BDC9606DEDAE /* TimerProvider.swift */; };
 		F1EECE4243CDF962BB93861D /* SpiderPomodoroApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A13B2D886E3A4225293752AE /* SpiderPomodoroApp.swift */; };
 		F71D708881CB41DD91028468 /* SpiderCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5DA5B5DD6D5F004EE97D15BC /* SpiderCore */; };
+		FAA0EBC5127676A538BC391B /* LiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F132C3CD77C30EDC5B0EDDD1 /* LiveActivityManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -83,6 +87,7 @@
 		1D8BFEFF0B4747FBAF465430 /* TimerPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerPanelView.swift; sourceTree = "<group>"; };
 		21DD5FDAE0EEF89FB2E8A1F4 /* SpiderWidgetsMac.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SpiderWidgetsMac.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		27A8F8BB34E16D19C947607B /* HangingHeroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HangingHeroView.swift; sourceTree = "<group>"; };
+		2DB943C7A40004CCDE15F36E /* AppIntentsRegistration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIntentsRegistration.swift; sourceTree = "<group>"; };
 		310CCD558A7A71D5395D47B9 /* StatusItemController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusItemController.swift; sourceTree = "<group>"; };
 		39D17A3DB1753E6A8EF08669 /* SpiderPomodoroMac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SpiderPomodoroMac.entitlements; sourceTree = "<group>"; };
 		3EFCFFCF00FB16CE7A1BC018 /* SpiderCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SpiderCore; path = Packages/SpiderCore; sourceTree = SOURCE_ROOT; };
@@ -101,6 +106,8 @@
 		C21E95B80A8564B3675A6493 /* TimerIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerIntents.swift; sourceTree = "<group>"; };
 		D4824D3AB993138F3A0CAE9D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E11F34F68882B4E19A423E28 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		EAD6F46E1648973CD7384619 /* LiveActivityViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityViews.swift; sourceTree = "<group>"; };
+		F132C3CD77C30EDC5B0EDDD1 /* LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -150,7 +157,9 @@
 		3A00FD24095D602173E7B9F4 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
+				2DB943C7A40004CCDE15F36E /* AppIntentsRegistration.swift */,
 				E11F34F68882B4E19A423E28 /* Info.plist */,
+				F132C3CD77C30EDC5B0EDDD1 /* LiveActivityManager.swift */,
 				631E668C74943045BE269488 /* SettingsSheet.swift */,
 				0CBCD63F6458595F39A3E6D7 /* SpiderPomodoroApp.swift */,
 				A3E9AED614FB70CBD4D52494 /* SpiderPomodoroiOS.entitlements */,
@@ -179,6 +188,7 @@
 		8E1D92688F3C4D6164ADCE4B /* Widgets */ = {
 			isa = PBXGroup;
 			children = (
+				EAD6F46E1648973CD7384619 /* LiveActivityViews.swift */,
 				91305E8FF842BED3D5C11635 /* SpiderWidgetBundle.swift */,
 				C21E95B80A8564B3675A6493 /* TimerIntents.swift */,
 				850D2F009565BDC9606DEDAE /* TimerProvider.swift */,
@@ -349,6 +359,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7410BD81140CFE5F7DECDCCA /* LiveActivityViews.swift in Sources */,
 				5C8044285D9A5E7BD5B33AFD /* SpiderWidgetBundle.swift in Sources */,
 				8D5C293FFB90AA05A9E7D1FE /* TimerIntents.swift in Sources */,
 				E19720ACBD146D39CD63C47B /* TimerProvider.swift in Sources */,
@@ -360,6 +371,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AEEFE476E6A53B177130A5AB /* AppIntentsRegistration.swift in Sources */,
+				FAA0EBC5127676A538BC391B /* LiveActivityManager.swift in Sources */,
 				C8056D0AC40D1C5B09CA276B /* SettingsSheet.swift in Sources */,
 				83740F32696D3FAD4B5CF984 /* SpiderPomodoroApp.swift in Sources */,
 				3A6624837D35A9C9BA6D18FE /* TimerScreen.swift in Sources */,
@@ -385,6 +398,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9DC16EEE4A52CDD069E87D8B /* LiveActivityViews.swift in Sources */,
 				28DB3AC4F387D8F304ECFE67 /* SpiderWidgetBundle.swift in Sources */,
 				8965FD9B428907212609C869 /* TimerIntents.swift in Sources */,
 				6C40FEB6377434EC84C10EE6 /* TimerProvider.swift in Sources */,

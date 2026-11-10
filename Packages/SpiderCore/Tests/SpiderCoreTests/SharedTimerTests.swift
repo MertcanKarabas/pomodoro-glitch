@@ -72,6 +72,23 @@ struct TimerTimelineTests {
         #expect(abs(drops[10] - 10.0 / 25) < 0.0001)
     }
 
+    @Test func followingPhaseEnd() {
+        let idle = TimerState.initial(settings: settings, now: t0)
+        #expect(idle.followingPhaseEnd(settings: settings) == nil)
+
+        // Work 0...25 min, break starts by itself and ends at 30.
+        let working = idle.started(at: t0)
+        #expect(working.followingPhaseEnd(settings: settings) == at(30))
+
+        // Break ending leads to work that waits for you: nothing to count down to.
+        let onBreak = TimerState(phase: .shortBreak, round: 1, duration: 5 * 60, startedAt: t0, updatedAt: t0)
+        #expect(onBreak.followingPhaseEnd(settings: settings) == nil)
+
+        var manual = settings
+        manual.autoStartBreaks = false
+        #expect(working.followingPhaseEnd(settings: manual) == nil)
+    }
+
     @Test func endlessAutoStartStopsAtLimit() {
         var auto = settings
         auto.autoStartWork = true

@@ -5,6 +5,9 @@ import WidgetKit
 struct SpiderWidgetBundle: WidgetBundle {
     var body: some Widget {
         SpiderTimerWidget()
+        #if os(iOS)
+        SpiderLiveActivity()
+        #endif
     }
 }
 

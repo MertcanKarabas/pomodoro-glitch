@@ -172,15 +172,14 @@ struct CountdownText: View {
 
     var body: some View {
         Group {
-            if state.status == .running, let end = state.endsAt, end > date {
-                Text(timerInterval: date...end, countsDown: true)
+            if state.status == .running, let start = state.startedAt, let end = state.endsAt, end > date {
+                Text(timerInterval: start...end, countsDown: true)
             } else {
                 Text(TimeFormat.clock(state.remaining(at: date)))
             }
         }
         .monospacedDigit()
         .lineLimit(1)
-        .minimumScaleFactor(0.6)
     }
 }
 

@@ -21,6 +21,28 @@ public enum HeroPose: String, Sendable, CaseIterable {
     case sleeping
 }
 
+/// Just the hero's masked head, for tight spots like the Dynamic Island.
+public struct HeroHead: View {
+    public var pose: HeroPose
+    public var size: CGFloat
+
+    public init(pose: HeroPose, size: CGFloat) {
+        self.pose = pose
+        self.size = size
+    }
+
+    public var body: some View {
+        Canvas { context, _ in
+            context.scaleBy(x: size / 48, y: size / 48)
+            // Head spans x -23...23, y 9...53: shift it into a 48-point square.
+            context.translateBy(x: 24, y: -7)
+            HeroDrawing.drawHead(pose: pose, in: &context)
+        }
+        .frame(width: size, height: size)
+        .accessibilityHidden(true)
+    }
+}
+
 /// The hero alone, hands at the top center. Size scales with `scale`.
 public struct HeroFigure: View {
     public static let baseSize = CGSize(width: 84, height: 126)
@@ -109,9 +131,7 @@ enum HeroDrawing {
         drawBadge(at: CGPoint(x: 0, y: 63), in: &context)
         context.stroke(torso, with: .color(HeroPalette.outline), lineWidth: outlineWidth)
 
-        // Head
-        blob(Path(ellipseIn: CGRect(x: -23, y: 9, width: 46, height: 44)), color: HeroPalette.red, in: &context)
-        drawEyes(pose: pose, in: &context)
+        drawHead(pose: pose, in: &context)
 
         // Hands on top of everything
         for hand in [leftHand, rightHand] {
@@ -122,6 +142,12 @@ enum HeroDrawing {
         if pose == .sleeping {
             drawSnores(time: t, in: &context)
         }
+    }
+
+    /// The mask and eyes. Occupies x -23...23, y 9...53 in hero coordinates.
+    static func drawHead(pose: HeroPose, in context: inout GraphicsContext) {
+        blob(Path(ellipseIn: CGRect(x: -23, y: 9, width: 46, height: 44)), color: HeroPalette.red, in: &context)
+        drawEyes(pose: pose, in: &context)
     }
 
     private static func drawEyes(pose: HeroPose, in context: inout GraphicsContext) {

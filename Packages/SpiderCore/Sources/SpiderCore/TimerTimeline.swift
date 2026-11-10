@@ -17,6 +17,15 @@ public struct TimerMoment: Equatable, Sendable {
     }
 }
 
+extension TimerState {
+    /// If the timer is running and the next phase starts by itself, when that next phase ends.
+    public func followingPhaseEnd(settings: PomodoroSettings) -> Date? {
+        guard let end = endsAt else { return nil }
+        let after = resolved(at: end, settings: settings).state
+        return after.status == .running ? after.endsAt : nil
+    }
+}
+
 /// Plans widget pictures ahead of time. Countdown text ticks by itself in widgets,
 /// but the hero's position and pose only change when a new moment starts, so we add
 /// one every minute while running, plus one exactly when each phase ends.

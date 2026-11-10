@@ -61,6 +61,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
 final class AppModel {
     let controller: TimerController
     let sync: SyncCoordinator?
+    let liveActivity: LiveActivityManager
 
     init() {
         let controller = TimerController(
@@ -75,13 +76,17 @@ final class AppModel {
         )
         self.controller = controller
         sync = CloudSync.shared.map { SyncCoordinator(controller: controller, cloud: $0) }
+        liveActivity = LiveActivityManager(controller: controller)
         controller.startTicking()
+        // A widget or Live Activity button changed the timer.
         SharedTimer.observeChanges { [controller] in controller.reload() }
     }
 
     /// Picks up widget presses, then checks iCloud.
     func catchUp() {
         controller.reload()
+        // A timer started on the Mac while we were in the background gets its Live Activity now.
+        liveActivity.refresh()
         guard let sync else { return }
         Task { await sync.pull() }
     }

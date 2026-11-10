@@ -115,6 +115,7 @@ targets:
           UIApplicationSupportsMultipleScenes: false
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         UIUserInterfaceStyle: Dark
+        NSSupportsLiveActivities: true
         # iCloud wakes the app when another device changes the timer.
         UIBackgroundModes: [remote-notification]
         CFBundleURLTypes:
