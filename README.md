@@ -55,6 +55,12 @@ Add the desktop widget: right-click the desktop → **Edit Widgets** → search 
 
 To quit, click the hero in the menu bar → **Quit Spider Pomodoro**. To uninstall, drag the app from Applications to the Trash.
 
+### Updates
+
+The app checks GitHub for a new version once a day (from version 1.1 on). When there is one, you get a notification and an **Update available** banner at the top of the panel: click **Download**, open the new `.dmg` and drag the app into Applications again, choosing **Replace**. Your timer and settings stay.
+
+You can also check any time from the panel: **Settings → Check for Updates**, or switch the daily check off there.
+
 ## iPhone
 
 iPhone apps can't be installed from a download link, so the iPhone version comes through Apple:
@@ -116,6 +122,18 @@ Run the tests:
 ```bash
 cd Packages/SpiderCore && swift test
 ```
+
+### Releasing a new Mac version
+
+1. Bump `MARKETING_VERSION` in `project.yml` (for example `"1.1"`).
+2. Build the signed, notarized disk image (needs Xcode signed in to the Developer ID account):
+   ```bash
+   scripts/release-mac.sh
+   ```
+3. Publish it as the latest GitHub release, tagged with the same version. The asset must be named `SpiderPomodoro.dmg`; the app's update check and the README download link look for it:
+   ```bash
+   gh release create v1.1 build/release/SpiderPomodoro.dmg --title "Spider Pomodoro 1.1" --notes "What's new…"
+   ```
 
 ### How it's put together
 

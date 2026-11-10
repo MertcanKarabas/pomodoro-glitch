@@ -21,6 +21,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
     private let heroPrefs = HeroPrefs()
     private let sync: SyncCoordinator?
     private let notifier: PhaseNotifier
+    /// Looks for newer releases on GitHub (nil if the build doesn't name a repository).
+    private let updates: UpdateChecker?
     private var statusItem: StatusItemController?
     private var heroWindow: HangingHeroWindow?
     private var pullTimer: Timer?
@@ -39,6 +41,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         sync = CloudSync.shared.map { SyncCoordinator(controller: controller, cloud: $0) }
         // Banners only: the Mac plays its own sound while the app runs.
         notifier = PhaseNotifier(controller: controller, playsSound: false)
+        updates = UpdateChecker(onNewUpdate: AppDelegate.announce)
         super.init()
         controller.startTicking()
         // A desktop widget button changed the timer (the widget sends it to iCloud itself).
@@ -51,7 +54,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
             Task { await notifier.requestPermission() }
         }
 
-        let statusItem = StatusItemController(controller: controller, heroPrefs: heroPrefs, notifier: notifier)
+        updates?.startAutomaticChecks()
+
+        let statusItem = StatusItemController(
+            controller: controller, heroPrefs: heroPrefs, notifier: notifier, updates: updates
+        )
         let heroView = HangingHeroView(
             frame: NSRect(origin: .zero, size: HangingHeroWindow.size),
             controller: controller,
@@ -84,6 +91,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         willPresent notification: UNNotification
     ) async -> UNNotificationPresentationOptions {
         [.banner, .list]
+    }
+
+    /// Clicking the "new version" notification opens its release page.
+    nonisolated func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse
+    ) async {
+        guard let link = response.notification.request.content.userInfo["url"] as? String,
+              let url = URL(string: link) else { return }
+        await MainActor.run { _ = NSWorkspace.shared.open(url) }
+    }
+
+    /// One notification per new version.
+    private static func announce(_ update: AvailableUpdate) {
+        let content = UNMutableNotificationContent()
+        content.title = "Spider Pomodoro \(update.version) is available"
+        content.body = "Click to see what's new and download it."
+        content.userInfo = ["url": update.pageURL.absoluteString]
+        let request = UNNotificationRequest(identifier: "update-\(update.version)", content: content, trigger: nil)
+        UNUserNotificationCenter.current().add(request)
     }
 
     func application(_ application: NSApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {

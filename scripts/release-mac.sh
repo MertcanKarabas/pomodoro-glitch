@@ -57,3 +57,6 @@ hdiutil create -volname "Spider Pomodoro" -srcfolder "$OUT/dmg" -ov -format UDZO
 
 VERSION=$(defaults read "$PWD/$APP/Contents/Info" CFBundleShortVersionString)
 echo "✓ $OUT/SpiderPomodoro.dmg (version $VERSION)"
+echo
+echo "Publish it (installed apps see the update within a day):"
+echo "  gh release create v$VERSION $OUT/SpiderPomodoro.dmg --title \"Spider Pomodoro $VERSION\" --notes \"What's new…\""

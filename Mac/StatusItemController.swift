@@ -12,14 +12,16 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     private let controller: TimerController
     private let heroPrefs: HeroPrefs
     private let notifier: PhaseNotifier
+    private let updates: UpdateChecker?
     private let popover = NSPopover()
     /// Called when the panel opens, so the app can check iCloud for a fresher timer.
     var onOpen: (() -> Void)?
 
-    init(controller: TimerController, heroPrefs: HeroPrefs, notifier: PhaseNotifier) {
+    init(controller: TimerController, heroPrefs: HeroPrefs, notifier: PhaseNotifier, updates: UpdateChecker?) {
         self.controller = controller
         self.heroPrefs = heroPrefs
         self.notifier = notifier
+        self.updates = updates
         super.init()
 
         popover.behavior = .transient
@@ -52,7 +54,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             popover.performClose(nil)
         } else {
             // Built fresh each time and dropped on close, so it costs nothing while hidden.
-            let panel = NSHostingController(rootView: TimerPanelView(controller: controller, heroPrefs: heroPrefs, notifier: notifier))
+            let panel = NSHostingController(rootView: TimerPanelView(controller: controller, heroPrefs: heroPrefs, notifier: notifier, updates: updates))
             panel.sizingOptions = .preferredContentSize
             popover.contentViewController = panel
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)

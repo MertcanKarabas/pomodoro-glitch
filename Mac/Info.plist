@@ -39,5 +39,7 @@
 	<string>$(APP_GROUP_ID)</string>
 	<key>SpiderCloudContainer</key>
 	<string>$(CLOUD_CONTAINER_ID)</string>
+	<key>SpiderUpdateRepo</key>
+	<string>MertcanKarabas/pomodoro-glitch</string>
 </dict>
 </plist>

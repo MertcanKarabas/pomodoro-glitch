@@ -6,12 +6,20 @@ struct TimerPanelView: View {
     let controller: TimerController
     let heroPrefs: HeroPrefs
     let notifier: PhaseNotifier
+    let updates: UpdateChecker?
     @State private var showSettings: Bool
 
-    init(controller: TimerController, heroPrefs: HeroPrefs, notifier: PhaseNotifier, showSettings: Bool = false) {
+    init(
+        controller: TimerController,
+        heroPrefs: HeroPrefs,
+        notifier: PhaseNotifier,
+        updates: UpdateChecker? = nil,
+        showSettings: Bool = false
+    ) {
         self.controller = controller
         self.heroPrefs = heroPrefs
         self.notifier = notifier
+        self.updates = updates
         _showSettings = State(initialValue: showSettings)
     }
 
@@ -20,6 +28,10 @@ struct TimerPanelView: View {
         let color = state.phase.color
 
         VStack(alignment: .leading, spacing: 12) {
+            if let update = updates?.availableUpdate {
+                UpdateBanner(update: update)
+            }
+
             HStack {
                 Label(state.phase.title, systemImage: state.phase.symbolName)
                     .font(.headline)
@@ -68,7 +80,7 @@ struct TimerPanelView: View {
             Divider()
 
             DisclosureGroup("Settings", isExpanded: $showSettings) {
-                SettingsForm(controller: controller, heroPrefs: heroPrefs, notifier: notifier)
+                SettingsForm(controller: controller, heroPrefs: heroPrefs, notifier: notifier, updates: updates)
             }
 
             Divider()
@@ -89,6 +101,7 @@ private struct SettingsForm: View {
     let controller: TimerController
     @Bindable var heroPrefs: HeroPrefs
     @Bindable var notifier: PhaseNotifier
+    let updates: UpdateChecker?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -116,6 +129,12 @@ private struct SettingsForm: View {
             Text("New times apply from the next phase.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+
+            if let updates {
+                Divider()
+                    .padding(.vertical, 2)
+                UpdateSettings(updates: updates)
+            }
         }
         .padding(.top, 8)
     }
@@ -141,5 +160,64 @@ private struct SettingsForm: View {
                 controller.update(settings: settings)
             }
         )
+    }
+}
+
+/// "Version 1.1 is available" with a Download button, at the top of the panel.
+private struct UpdateBanner: View {
+    let update: AvailableUpdate
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "arrow.down.circle.fill")
+                .font(.title3)
+                .foregroundStyle(Color.accentColor)
+            VStack(alignment: .leading, spacing: 1) {
+                Text("Version \(update.version.description) is available")
+                    .font(.callout.weight(.semibold))
+                    .fixedSize()
+                Button("See what's new") { NSWorkspace.shared.open(update.pageURL) }
+                    .buttonStyle(.link)
+                    .font(.caption)
+            }
+            Spacer(minLength: 4)
+            Button("Download") { NSWorkspace.shared.open(update.downloadURL ?? update.pageURL) }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+        }
+        .padding(10)
+        .background(Color.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
+    }
+}
+
+/// Version, "Check for Updates" and the automatic-check switch.
+private struct UpdateSettings: View {
+    @Bindable var updates: UpdateChecker
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Button("Check for Updates") {
+                    Task { await updates.check() }
+                }
+                .disabled(updates.status == .checking)
+                Spacer()
+                Text(statusText)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            Toggle("Check for updates automatically", isOn: $updates.checksAutomatically)
+        }
+    }
+
+    private var statusText: String {
+        switch updates.status {
+        case .idle: "Version \(updates.currentVersion)"
+        case .checking: "Checking…"
+        case .upToDate: "Up to date (\(updates.currentVersion))"
+        case .available(let update): "\(update.version) available"
+        case .failed: "Couldn't check. Try again later."
+        }
     }
 }
