@@ -14,6 +14,12 @@ public enum TimeFormat {
         return String(format: "%d:%02d", minutes, secs)
     }
 
+    /// "24m": minutes left (rounded up), for the menu bar. Changes once a minute, which keeps
+    /// macOS from redrawing the menu bar every second.
+    public static func shortMinutes(_ seconds: TimeInterval) -> String {
+        "\(minutesLeft(seconds))m"
+    }
+
     /// Whole minutes left, rounded up: 1500 s → 25, 61 s → 2, 59 s → 1, 0 → 0.
     /// Half a second of slack so timeline steps landing a hair late don't show one too many.
     public static func minutesLeft(_ seconds: TimeInterval) -> Int {

@@ -27,9 +27,10 @@
 ## What it does
 
 - **Hero on a web.** Work time: the hero hangs from the top and drops as the minutes pass. Break: he climbs back up. Phase over: he waves. Not started: he sleeps.
-- **Mac menu bar.** Time left next to the hero icon in the menu bar, and the hero hanging right under it on your desktop. Click the icon for the timer panel.
+- **Mac menu bar.** Minutes left (like **24m**) next to the hero icon in the menu bar, and the hero hanging right under it on your desktop. Click the icon for the timer panel. Turn on **Settings → Seconds in menu bar** for a full 24:13 countdown.
 - **Move the hero.** Drag him anywhere on your screen and his web starts from there. **Settings → Back under the menu bar** puts him back. Clicks around him still reach the windows underneath.
 - **Timer card.** Click the hero for a small card with the countdown, Pause and Skip. Pin it (or just drag it) to keep it on screen as its own window; it comes back after a restart, and it always stays clear of the screen edges and the Dock.
+- **Work and breaks.** Sitting on the card or a widget, he types on a little laptop (coffee beside him) while you work, and scrolls his phone on breaks, laughing now and then. On his web during a break he takes turns climbing and hanging on one-handed to scroll his phone.
 - **Play with him.** Point at the hero and he waves. Carry him around and he dangles from his hands. Shake him and he gets dizzy; keep shaking and he gets grumpy.
 - **Climbing.** Drop the hero on the pinned timer card or a desktop widget and he climbs onto it: near the top edge he sits on it swinging his legs, near the bottom he hangs upside down under it, near a side he grips that side, and in the middle he climbs behind it and peeks over the top. Now and then, at random times (about twice a day; **Settings → Wandering** makes it hourly or every few minutes), he walks or climbs round to another spot. Hanging underneath he sometimes gets out binoculars and spies on it. Point at him and he holds still. He moves with the card when you drag it, and on a desktop widget app windows cover him just like they cover the widget. Drag him off to put him back on his web. (macOS doesn't tell apps which widget is which, so he climbs any desktop widget.)
 - **iPhone.** The hero hangs from the Dynamic Island, with a live countdown in the island and on the Lock Screen.
@@ -38,7 +39,7 @@
 - **Alerts.** A notification when work or a break ends, even with the app closed. Can be switched off per device.
 - **Today's count.** "Today: 3 rounds · 75 min".
 - **Your rhythm.** 25 / 5 / 15 minutes and a long break every 4 rounds by default, all adjustable. Breaks can start by themselves.
-- **Light on battery.** The Mac hero is drawn with Core Animation, so he swings and drops inside macOS itself; the app uses about 0% CPU while idle.
+- **Light on battery.** The Mac hero is drawn with Core Animation, so he swings, drops and walks inside macOS itself, and the menu bar changes once a minute. The app uses about 0.5% CPU with the timer running and next to nothing while idle.
 
 <p align="center">
   <img src="docs/images/mac-panel.png" width="300" alt="Mac menu bar panel with countdown, progress and today's count">

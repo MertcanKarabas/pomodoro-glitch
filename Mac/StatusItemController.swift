@@ -14,6 +14,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     private let notifier: PhaseNotifier
     private let updates: UpdateChecker?
     private let popover = NSPopover()
+    private var lastDescription: String?
     /// Called when the panel opens, so the app can check iCloud for a fresher timer.
     var onOpen: (() -> Void)?
 
@@ -80,16 +81,24 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     private func render() {
         guard let button = statusItem.button else { return }
         let state = controller.state
-        let time = controller.clockText
+        // Minutes by default: the title then changes once a minute. Every change makes macOS
+        // redraw our part of the menu bar on every display, which was most of the app's CPU.
+        let time = heroPrefs.menuBarSeconds
+            ? controller.clockText
+            : TimeFormat.shortMinutes(controller.remaining)
         let image = state.phase.isBreak ? HeroIcon.resting : HeroIcon.working
         let title = state.status == .idle ? "" : time
         if button.image !== image { button.image = image }
         if button.title != title { button.title = title }
+        let spoken = heroPrefs.menuBarSeconds ? time : "\(TimeFormat.minutesLeft(controller.remaining)) min"
         let description = switch state.status {
         case .idle: "Spider Pomodoro, \(state.phase.title) ready"
-        case .running: "\(state.phase.title), \(time) left"
-        case .paused: "\(state.phase.title) paused, \(time) left"
+        case .running: "\(state.phase.title), \(spoken) left"
+        case .paused: "\(state.phase.title) paused, \(spoken) left"
         }
-        button.setAccessibilityLabel(description)
+        if description != lastDescription {
+            lastDescription = description
+            button.setAccessibilityLabel(description)
+        }
     }
 }

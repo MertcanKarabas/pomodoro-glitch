@@ -89,6 +89,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         pullTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.pullFromCloud() }
         }
+        pullTimer?.tolerance = 10
         NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.didWakeNotification, object: nil, queue: .main
         ) { [weak self] _ in

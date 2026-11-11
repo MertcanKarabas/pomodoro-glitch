@@ -106,6 +106,8 @@ private struct SettingsForm: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Toggle("Alert when a phase ends", isOn: $notifier.isEnabled)
+            Toggle("Seconds in menu bar", isOn: $heroPrefs.menuBarSeconds)
+                .help("Show 24:13 instead of 24m. Uses a little more battery: the menu bar redraws every second.")
             Toggle("Hanging hero on desktop", isOn: $heroPrefs.showHero)
             Picker("Hero size", selection: $heroPrefs.size) {
                 ForEach(HeroPrefs.Size.allCases) { size in

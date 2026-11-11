@@ -78,6 +78,8 @@ final class HangingHeroView: NSView {
         updateTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.update() }
         }
+        // Let macOS fold this into other wake-ups.
+        updateTimer?.tolerance = 0.15
     }
 
     // MARK: - Layers
@@ -161,6 +163,7 @@ final class HangingHeroView: NSView {
         walk.path = route
         walk.calculationMode = .paced
         walk.duration = duration
+        walk.preferredFrameRateRange = CAFrameRateRange(minimum: 30, maximum: 60, preferred: 60)
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         heroLayer.position = last
@@ -363,14 +366,17 @@ final class HangingHeroView: NSView {
             now: Date(),
             lastFinished: controller.lastFinished
         )
-        let reaction = mood.reaction(at: CACurrentMediaTime())
+        let now = CACurrentMediaTime()
+        let reaction = mood.reaction(at: now)
+        // What he's busy with: a laptop at work, his phone on a break.
+        let task = HeroTask(state: controller.state, now: Date(), lastFinished: controller.lastFinished)
         if let perchState {
-            show(pose: perchState.pose(timerPose: placement.pose, reaction: reaction), scale: prefs.size.scale)
+            show(pose: perchState.pose(task: task, reaction: reaction), scale: prefs.size.scale)
             // Hanging still upside down he sways a little; elsewhere he's sitting, walking or holding on.
             setSwinging(perchState.swings)
             return
         }
-        show(pose: reaction?.pose ?? placement.pose, scale: prefs.size.scale)
+        show(pose: reaction?.pose ?? task.webPose(timerPose: placement.pose, at: now), scale: prefs.size.scale)
         setSwinging(placement.swings)
         setWebLength(Self.shortestWeb + placement.drop * Self.dropDistance)
     }
@@ -406,6 +412,9 @@ final class HangingHeroView: NSView {
             animation.calculationMode = .discrete
             animation.duration = flipBook.frameDuration * Double(flipBook.images.count)
             animation.repeatCount = .infinity
+            // Only as often as the pictures change.
+            let fps = Float(1 / flipBook.frameDuration)
+            animation.preferredFrameRateRange = CAFrameRateRange(minimum: fps / 2, maximum: fps, preferred: fps)
             heroLayer.add(animation, forKey: "flipBook")
         }
         CATransaction.commit()
@@ -427,20 +436,28 @@ final class HangingHeroView: NSView {
         swing.repeatCount = .infinity
         swing.isAdditive = true
         swing.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        // A slow 3° sway looks the same at 24 frames a second as at 120, for far less work.
+        swing.preferredFrameRateRange = CAFrameRateRange(minimum: 12, maximum: 30, preferred: 24)
         (perchState != nil ? heroLayer : swingLayer).add(swing, forKey: "swing")
     }
 
-    private func setWebLength(_ length: CGFloat) {
+    private func setWebLength(_ exact: CGFloat) {
+        // He drops about a fifth of a point a second at work: move him in half-point steps
+        // (one pixel on a Retina screen), not a sliver every half second.
+        let length = (exact * 2).rounded() / 2
         let previous = webLength
         guard previous != length else { return }
         webLength = length
 
         CATransaction.begin()
-        if let previous {
-            // Small steps glide evenly (a smooth drop); big jumps (skip, reset) ease in and out.
-            let bigJump = abs(length - previous) > 20
-            CATransaction.setAnimationDuration(bigJump ? 0.9 : 0.5)
-            CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: bigJump ? .easeInEaseOut : .linear))
+        if let previous, abs(length - previous) > 20 {
+            // Big jumps (skip, reset) ease in and out.
+            CATransaction.setAnimationDuration(0.9)
+            CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: .easeInEaseOut))
+        } else if let previous, abs(length - previous) > 2 {
+            // Faster breaks climb a few points at a time: glide.
+            CATransaction.setAnimationDuration(0.5)
+            CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: .linear))
         } else {
             CATransaction.setDisableActions(true)
         }
@@ -460,11 +477,16 @@ final class HeroFrames {
         let frameDuration: Double
     }
 
-    private var cache: [String: FlipBook] = [:]
+    private var cache: [HeroPose: FlipBook] = [:]
+    private var cachedSize: (scale: CGFloat, backingScale: CGFloat)?
 
     func flipBook(for pose: HeroPose, scale: CGFloat, backingScale: CGFloat) -> FlipBook {
-        let key = "\(pose.rawValue)-\(scale)-\(backingScale)"
-        if let cached = cache[key] { return cached }
+        // Pictures for another hero size (or display) aren't needed any more.
+        if let cachedSize, cachedSize != (scale, backingScale) {
+            cache.removeAll()
+        }
+        cachedSize = (scale, backingScale)
+        if let cached = cache[pose] { return cached }
 
         // Frame times line up with each pose's motion cycle in HeroDrawing. More frames make
         // smoother motion; still poses need just one.
@@ -483,6 +505,8 @@ final class HeroFrames {
         case .clinging: loop(1.6, 12)
         case .walking, .upsideDownWalking: loop(0.6, 10)
         case .spying: loop(2.4, 12)
+        case .sittingWorking: loop(2.4, 24)
+        case .sittingScrolling, .hangingScrolling: loop(4.8, 32)
         }
         let images = times.compactMap { time -> CGImage? in
             let renderer = ImageRenderer(content: HeroFigure(pose: pose, time: time, scale: scale))
@@ -490,7 +514,7 @@ final class HeroFrames {
             return renderer.cgImage
         }
         let book = FlipBook(images: images, frameDuration: frameDuration)
-        cache[key] = book
+        cache[pose] = book
         return book
     }
 }

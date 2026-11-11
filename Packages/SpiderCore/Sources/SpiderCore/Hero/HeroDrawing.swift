@@ -43,6 +43,12 @@ public enum HeroPose: String, Sendable, CaseIterable {
     case upsideDownWalking
     /// Upside down under the widget, spying on it through binoculars.
     case spying
+    /// Sitting on the widget, typing on a laptop, coffee beside him. Work time.
+    case sittingWorking
+    /// Sitting on the widget, scrolling his phone (and laughing now and then). Break time.
+    case sittingScrolling
+    /// Hanging from his web with one hand, scrolling his phone with the other. Break time.
+    case hangingScrolling
 }
 
 /// Just the hero's masked head, for tight spots like the Dynamic Island.
@@ -87,9 +93,9 @@ public struct HeroFigure: View {
     /// or on a widget his seat, feet or hands on its edge.
     public static func layout(for pose: HeroPose) -> (size: CGSize, contact: CGPoint) {
         switch pose {
-        case .hanging, .climbing, .waving, .sleeping, .dizzy, .grumpy:
+        case .hanging, .climbing, .waving, .sleeping, .dizzy, .grumpy, .hangingScrolling:
             (baseSize, grip)
-        case .sitting, .sittingAsleep, .sittingWaving:
+        case .sitting, .sittingAsleep, .sittingWaving, .sittingWorking, .sittingScrolling:
             (CGSize(width: 90, height: 136), CGPoint(x: 45, y: 100))
         case .upsideDown, .upsideDownWalking, .spying:
             (CGSize(width: 84, height: 116), CGPoint(x: 42, y: 6))
@@ -121,25 +127,30 @@ enum HeroDrawing {
     /// downwards. On the web that's the hand grip; he spans roughly x -38...38, y -8...114.
     static func drawHero(pose: HeroPose, time t: Double, in context: inout GraphicsContext) {
         switch pose {
-        case .sitting, .sittingAsleep, .sittingWaving: return drawSitting(pose: pose, time: t, in: &context)
+        case .sitting, .sittingAsleep, .sittingWaving, .sittingWorking, .sittingScrolling:
+            return drawSitting(pose: pose, time: t, in: &context)
         case .upsideDown: return drawStanding(.armsCrossed, upsideDown: true, time: t, in: &context)
         case .upsideDownWalking: return drawStanding(.walking, upsideDown: true, time: t, in: &context)
         case .spying: return drawStanding(.binoculars, upsideDown: true, time: t, in: &context)
         case .walking: return drawStanding(.walking, upsideDown: false, time: t, in: &context)
         case .peeking: return drawPeeking(time: t, in: &context)
         case .clinging: return drawClinging(time: t, in: &context)
-        case .hanging, .climbing, .waving, .sleeping, .dizzy, .grumpy: break
+        case .hanging, .climbing, .waving, .sleeping, .dizzy, .grumpy, .hangingScrolling: break
+        }
+        // Laughing at something on his phone: a little shake.
+        if pose == .hangingScrolling, isLaughing(t) {
+            context.translateBy(x: 0.8 * sin(t * 2 * .pi / 0.3), y: 0)
         }
 
         let climbBeat = (sin(t * 2 * .pi / 0.9) + 1) / 2
         let sway: Double = switch pose {
-        case .hanging: 1.4 * sin(t * 2 * .pi / 3.4 + 0.8)
+        case .hanging, .hangingScrolling: 1.4 * sin(t * 2 * .pi / 3.4 + 0.8)
         // Legs flop about while he's dizzy and kick while he's cross.
         case .dizzy: 4 * sin(t * 2 * .pi / dizzyCycle)
         case .grumpy: 2 * sin(t * 2 * .pi / 0.3)
         case .climbing, .waving, .sleeping: 0
         case .sitting, .sittingAsleep, .sittingWaving, .upsideDown, .peeking, .clinging,
-             .walking, .upsideDownWalking, .spying: 0
+             .walking, .upsideDownWalking, .spying, .sittingWorking, .sittingScrolling: 0
         }
 
         // Hands
@@ -165,8 +176,13 @@ enum HeroDrawing {
             leftHand.x = -1
             rightHand = CGPoint(x: 29, y: 15 + 4 * sin(t * 2 * .pi / 0.3))
             rightElbow = CGPoint(x: 41, y: 44)
+        case .hangingScrolling:
+            // One hand on the web, the other holding his phone.
+            leftHand.x = -1
+            rightHand = CGPoint(x: 10, y: 63 + phoneBob(t))
+            rightElbow = CGPoint(x: 26, y: 70)
         case .hanging, .sleeping, .sitting, .sittingAsleep, .sittingWaving, .upsideDown, .peeking, .clinging,
-             .walking, .upsideDownWalking, .spying:
+             .walking, .upsideDownWalking, .spying, .sittingWorking, .sittingScrolling:
             break
         }
 
@@ -210,6 +226,9 @@ enum HeroDrawing {
         context.stroke(torso, with: .color(HeroPalette.outline), lineWidth: outlineWidth)
 
         drawHead(pose: pose, time: t, in: &context)
+        if pose == .hangingScrolling {
+            drawPhoneInHand(phone: CGPoint(x: 10, y: 52 + phoneBob(t)), head: context, time: t, in: &context)
+        }
 
         // Hands on top of everything
         for (index, hand) in [leftHand, rightHand].enumerated() {
@@ -233,6 +252,7 @@ enum HeroDrawing {
         case .sleeping: drawSnores(time: t, in: &context)
         case .dizzy: drawStars(time: t, front: true, in: &context)
         case .grumpy: drawSteam(time: t, in: &context)
+        case .hangingScrolling where isLaughing(t): drawLaugh(time: t, in: &context)
         default: break
         }
     }
@@ -254,19 +274,9 @@ enum HeroDrawing {
             switch pose {
             case .hanging, .climbing, .sitting, .upsideDown, .peeking, .clinging,
                  .walking, .upsideDownWalking, .spying:
-                let eye = Path(ellipseIn: CGRect(x: -7.5, y: -5, width: 15, height: 10))
-                    .applying(CGAffineTransform(rotationAngle: -side * 18 * .pi / 180)
-                        .concatenating(CGAffineTransform(translationX: center.x, y: center.y)))
-                context.fill(eye, with: .color(HeroPalette.eye))
-                context.stroke(eye, with: .color(HeroPalette.outline), lineWidth: 2.2)
+                drawOpenEye(at: center, side: side, in: &context)
             case .waving, .sittingWaving:
-                // Happy closed eyes: ∩
-                var arc = Path()
-                arc.move(to: CGPoint(x: center.x - 6, y: center.y + 2))
-                arc.addQuadCurve(to: CGPoint(x: center.x + 6, y: center.y + 2),
-                                 control: CGPoint(x: center.x, y: center.y - 7))
-                context.stroke(arc, with: .color(HeroPalette.eye),
-                               style: StrokeStyle(lineWidth: 3.2, lineCap: .round))
+                drawHappyEye(at: center, in: &context)
             case .sleeping, .sittingAsleep:
                 // Sleepy closed eyes: ∪
                 var arc = Path()
@@ -279,8 +289,52 @@ enum HeroDrawing {
                 drawSpiralEye(at: center, turn: side * time * 2 * .pi / (dizzyCycle / 2), in: &context)
             case .grumpy:
                 drawAngryEye(at: center, side: side, in: &context)
+            case .sittingWorking:
+                drawFocusedEye(at: center, side: side, in: &context)
+            case .sittingScrolling, .hangingScrolling:
+                if isLaughing(time) {
+                    drawHappyEye(at: center, in: &context)
+                } else {
+                    drawFocusedEye(at: center, side: side, in: &context)
+                }
             }
         }
+    }
+
+    private static func openEyePath(at center: CGPoint, side: Double) -> Path {
+        Path(ellipseIn: CGRect(x: -7.5, y: -5, width: 15, height: 10))
+            .applying(CGAffineTransform(rotationAngle: -side * 18 * .pi / 180)
+                .concatenating(CGAffineTransform(translationX: center.x, y: center.y)))
+    }
+
+    private static func drawOpenEye(at center: CGPoint, side: Double, in context: inout GraphicsContext) {
+        let eye = openEyePath(at: center, side: side)
+        context.fill(eye, with: .color(HeroPalette.eye))
+        context.stroke(eye, with: .color(HeroPalette.outline), lineWidth: 2.2)
+    }
+
+    /// Happy closed eyes: ∩
+    private static func drawHappyEye(at center: CGPoint, in context: inout GraphicsContext) {
+        var arc = Path()
+        arc.move(to: CGPoint(x: center.x - 6, y: center.y + 2))
+        arc.addQuadCurve(to: CGPoint(x: center.x + 6, y: center.y + 2),
+                         control: CGPoint(x: center.x, y: center.y - 7))
+        context.stroke(arc, with: .color(HeroPalette.eye),
+                       style: StrokeStyle(lineWidth: 3.2, lineCap: .round))
+    }
+
+    /// Eyes half closed, looking down at a screen.
+    private static func drawFocusedEye(at center: CGPoint, side: Double, in context: inout GraphicsContext) {
+        let eye = openEyePath(at: center, side: side)
+        context.drawLayer { layer in
+            layer.clip(to: Path(CGRect(x: center.x - 10, y: center.y - 0.6, width: 20, height: 10)))
+            layer.fill(eye, with: .color(HeroPalette.eye))
+            layer.stroke(eye, with: .color(HeroPalette.outline), lineWidth: 2.2)
+        }
+        var lid = Path()
+        lid.move(to: CGPoint(x: center.x - 7.4, y: center.y - 0.6 + side * 1.2))
+        lid.addLine(to: CGPoint(x: center.x + 7.4, y: center.y - 0.6 - side * 1.2))
+        context.stroke(lid, with: .color(HeroPalette.outline), style: StrokeStyle(lineWidth: 2.2, lineCap: .round))
     }
 
     /// Round white eye with a spinning spiral.
@@ -422,15 +476,36 @@ enum HeroDrawing {
     /// Seat on the edge at (0, 0): body above, legs swinging over the front of the widget.
     private static func drawSitting(pose: HeroPose, time t: Double, in context: inout GraphicsContext) {
         let asleep = pose == .sittingAsleep
+        let working = pose == .sittingWorking
+        let scrolling = pose == .sittingScrolling
         let wave = sin(t * 2 * .pi / 0.7)
-        let leftHand = CGPoint(x: -22, y: -1)
-        let rightHand = pose == .sittingWaving
-            ? CGPoint(x: 31 + 3 * wave, y: -57 - 2 * abs(wave))
-            : CGPoint(x: 22, y: -1)
-        let rightElbow = pose == .sittingWaving ? CGPoint(x: 40, y: -26) : CGPoint(x: 27, y: -14)
+        // Typing: the hands tap in turn.
+        let tap = sin(t * 2 * .pi / typeCycle)
+        var leftHand = CGPoint(x: -22, y: -1)
+        var rightHand = CGPoint(x: 22, y: -1)
+        var leftElbow = CGPoint(x: -27, y: -14)
+        var rightElbow = CGPoint(x: 27, y: -14)
+        switch pose {
+        case .sittingWaving:
+            rightHand = CGPoint(x: 31 + 3 * wave, y: -57 - 2 * abs(wave))
+            rightElbow = CGPoint(x: 40, y: -26)
+        case .sittingWorking:
+            leftHand = CGPoint(x: -20, y: -9 - 2.2 * max(0, tap))
+            rightHand = CGPoint(x: 20, y: -9 - 2.2 * max(0, -tap))
+            leftElbow = CGPoint(x: -27, y: -10)
+            rightElbow = CGPoint(x: 27, y: -10)
+        case .sittingScrolling:
+            rightHand = CGPoint(x: 9, y: -21 + phoneBob(t))
+            rightElbow = CGPoint(x: 26, y: -10)
+        default:
+            break
+        }
+        if scrolling, isLaughing(t) {
+            context.translateBy(x: 0.8 * sin(t * 2 * .pi / 0.3), y: 0)
+        }
 
         // Arms behind the body, hands flat on the edge.
-        limb(curve(from: CGPoint(x: -13, y: -24), to: leftHand, control: CGPoint(x: -27, y: -14)),
+        limb(curve(from: CGPoint(x: -13, y: -24), to: leftHand, control: leftElbow),
              color: HeroPalette.navy, width: 7, in: &context)
         limb(curve(from: CGPoint(x: 13, y: -24), to: rightHand, control: rightElbow),
              color: HeroPalette.navy, width: 7, in: &context)
@@ -445,9 +520,12 @@ enum HeroDrawing {
         drawBadge(at: CGPoint(x: 0, y: -19), in: &context)
         context.stroke(torso, with: .color(HeroPalette.outline), lineWidth: outlineWidth)
 
-        // Legs over the edge, swinging one after the other (still while asleep).
+        // Legs over the edge, swinging one after the other: still while asleep, a gentle
+        // jiggle while working, lazy swings on a break.
+        let legCycle = scrolling ? 2.4 : sitCycle
+        let legSwing = asleep ? 0 : working ? 0.25 : 1
         for (index, side) in [-1.0, 1.0].enumerated() {
-            let beat = asleep ? 0 : (sin(t * 2 * .pi / sitCycle + Double(index) * .pi) + 1) / 2
+            let beat = legSwing * (sin(t * 2 * .pi / legCycle + Double(index) * .pi) + 1) / 2
             drawLeg(hip: CGPoint(x: 7 * side, y: -3),
                     knee: CGPoint(x: 9 * side, y: 5),
                     foot: CGPoint(x: (9 + 1.5 * beat) * side, y: 27 - 7 * beat),
@@ -461,8 +539,134 @@ enum HeroDrawing {
             drawSnores(time: t, in: &head)
         }
 
+        if working {
+            drawScreenGlow(on: head, center: CGPoint(x: 0, y: 49), in: &head)
+            drawLaptop(in: &context)
+            drawMug(at: CGPoint(x: 34, y: 0), time: t, in: &context)
+        }
+        if scrolling {
+            drawPhoneInHand(phone: CGPoint(x: 9, y: -31 + phoneBob(t)), head: head, time: t, in: &context)
+            if isLaughing(t) {
+                drawLaugh(time: t, in: &head)
+            }
+        }
+
         drawHand(at: leftHand, in: &context)
         drawHand(at: rightHand, in: &context)
+    }
+
+    // MARK: - Laptop, coffee and phone
+
+    /// Typing rhythm, and the loop for scrolling (with a laugh near the end of each).
+    static let typeCycle = 0.4
+    static let scrollCycle = 4.8
+
+    /// Something funny on his phone, for a moment each loop.
+    static func isLaughing(_ t: Double) -> Bool {
+        let into = (t / scrollCycle).truncatingRemainder(dividingBy: 1)
+        return into >= 0.72 && into < 0.9
+    }
+
+    /// The phone drifts a little in his hand.
+    private static func phoneBob(_ t: Double) -> Double { 0.6 * sin(t * 2 * .pi / 2.4) }
+
+    /// The back of his laptop on his lap (we see the lid; the screen faces him).
+    private static func drawLaptop(in context: inout GraphicsContext) {
+        let lid = Path(roundedRect: CGRect(x: -21, y: -33, width: 42, height: 27), cornerRadius: 3.5)
+        context.fill(lid, with: .color(Color(white: 0.82)))
+        context.stroke(lid, with: .color(HeroPalette.outline), lineWidth: 1.4)
+        // A little web on the lid.
+        let center = CGPoint(x: 0, y: -19.5)
+        var web = Path()
+        for radius in [2.6, 5.4] {
+            web.addEllipse(in: CGRect(x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2))
+        }
+        for spoke in 0..<6 {
+            let angle = Double(spoke) * .pi / 3
+            web.move(to: center)
+            web.addLine(to: CGPoint(x: center.x + 6.4 * cos(angle), y: center.y + 6.4 * sin(angle)))
+        }
+        context.stroke(web, with: .color(Color(white: 0.55)), lineWidth: 0.8)
+        let base = Path(roundedRect: CGRect(x: -23, y: -7, width: 46, height: 4.5), cornerRadius: 1.8)
+        context.fill(base, with: .color(Color(white: 0.64)))
+        context.stroke(base, with: .color(HeroPalette.outline), lineWidth: 1.2)
+    }
+
+    /// A mug on the edge beside him, steam curling up.
+    private static func drawMug(at base: CGPoint, time t: Double, in context: inout GraphicsContext) {
+        context.drawLayer { steam in
+            for puff in 0..<2 {
+                let phase = (t / 2.4 + Double(puff) / 2).truncatingRemainder(dividingBy: 1)
+                var wisp = Path()
+                let x = base.x - 1.5 + 3 * Double(puff)
+                let y = base.y - 12 - 7 * phase
+                wisp.move(to: CGPoint(x: x, y: y))
+                wisp.addCurve(to: CGPoint(x: x, y: y - 8),
+                              control1: CGPoint(x: x + 2.5, y: y - 2.5),
+                              control2: CGPoint(x: x - 2.5, y: y - 5.5))
+                var layer = steam
+                layer.opacity = 0.85 * sin(phase * .pi)
+                layer.stroke(wisp, with: .color(.white), style: StrokeStyle(lineWidth: 1.2, lineCap: .round))
+            }
+        }
+        let handle = Path(ellipseIn: CGRect(x: base.x + 2.2, y: base.y - 8.2, width: 5.6, height: 5.6))
+        context.stroke(handle, with: .color(HeroPalette.outline), lineWidth: 2.6)
+        context.stroke(handle, with: .color(.white), lineWidth: 1.2)
+        let mug = Path(roundedRect: CGRect(x: base.x - 4.5, y: base.y - 10, width: 9, height: 10), cornerRadius: 1.8)
+        context.fill(mug, with: .color(.white))
+        context.drawLayer { band in
+            band.clip(to: mug)
+            band.fill(Path(CGRect(x: base.x - 5, y: base.y - 6.5, width: 10, height: 2.2)), with: .color(HeroPalette.red))
+        }
+        context.stroke(mug, with: .color(HeroPalette.outline), lineWidth: 1.2)
+    }
+
+    /// The light from a screen on the lower half of his mask. `head` is the head's coordinates.
+    private static func drawScreenGlow(on head: GraphicsContext, center: CGPoint, in context: inout GraphicsContext) {
+        context.drawLayer { glow in
+            glow.clip(to: Path(ellipseIn: CGRect(x: -23, y: 9, width: 46, height: 44)))
+            glow.fill(Path(ellipseIn: CGRect(x: center.x - 17, y: center.y - 8, width: 34, height: 16)),
+                      with: .color(Color(red: 0.62, green: 0.86, blue: 1).opacity(0.32)))
+        }
+    }
+
+    /// His phone (we see its back), the screen's glow on his face, and his thumb flicking up the feed.
+    /// `head` is a context in the head's coordinates.
+    private static func drawPhoneInHand(phone: CGPoint, head: GraphicsContext, time t: Double,
+                                        in context: inout GraphicsContext) {
+        var face = head
+        // The glow sits on the side the phone is on.
+        drawScreenGlow(on: head, center: CGPoint(x: 6, y: 47), in: &face)
+
+        let body = Path(roundedRect: CGRect(x: phone.x - 6.5, y: phone.y - 10.5, width: 13, height: 21), cornerRadius: 3)
+        context.fill(body, with: .color(Color(red: 0.17, green: 0.18, blue: 0.24)))
+        context.stroke(body, with: .color(HeroPalette.outline), lineWidth: 1.2)
+        let bump = Path(roundedRect: CGRect(x: phone.x - 4.6, y: phone.y - 8.6, width: 5.2, height: 5.2), cornerRadius: 1.6)
+        context.fill(bump, with: .color(Color(white: 0.36)))
+        for (dx, dy) in [(-3.3, -7.3), (-1.1, -5.1)] {
+            context.fill(Path(ellipseIn: CGRect(x: phone.x + dx - 0.9, y: phone.y + dy - 0.9, width: 1.8, height: 1.8)),
+                         with: .color(.black))
+        }
+        // Thumb on the screen's edge: a quick flick up, then back down.
+        let flick = (t / 0.6).truncatingRemainder(dividingBy: 1)
+        let thumbY = flick < 0.35 ? 4 - 9 * (flick / 0.35) : -5 + 9 * ((flick - 0.35) / 0.65)
+        blob(Path(ellipseIn: CGRect(x: phone.x + 4.5, y: phone.y + thumbY - 2.5, width: 4.5, height: 5)),
+             color: HeroPalette.red, in: &context)
+    }
+
+    /// "haha" popping up beside his head. Head coordinates.
+    private static func drawLaugh(time t: Double, in context: inout GraphicsContext) {
+        let into = ((t / scrollCycle).truncatingRemainder(dividingBy: 1) - 0.72) / 0.18
+        context.drawLayer { layer in
+            layer.addFilter(.shadow(color: .black.opacity(0.6), radius: 1.2))
+            layer.opacity = min(1, 3 * sin(into * .pi))
+            let text = Text("haha")
+                .font(.system(size: 8, weight: .heavy, design: .rounded))
+                .foregroundStyle(Color.white)
+            layer.translateBy(x: 27, y: 10 - 4 * into)
+            layer.rotate(by: .degrees(-14))
+            layer.draw(text, at: .zero)
+        }
     }
 
     enum StandingArms {

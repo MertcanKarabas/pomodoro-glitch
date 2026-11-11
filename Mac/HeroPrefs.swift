@@ -50,6 +50,12 @@ final class HeroPrefs {
         didSet { save(customAnchor, key: Keys.anchor) }
     }
 
+    /// Menu bar shows "24:13" instead of "24m". Off by default: a time that changes every
+    /// second makes macOS redraw the menu bar (on every display) every second.
+    var menuBarSeconds: Bool {
+        didSet { defaults.set(menuBarSeconds, forKey: Keys.menuBarSeconds) }
+    }
+
     var wander: Wander {
         didSet { defaults.set(wander.rawValue, forKey: Keys.wander) }
     }
@@ -77,6 +83,7 @@ final class HeroPrefs {
         static let anchor = "hero.anchor"
         static let perch = "hero.perch"
         static let wander = "hero.wander"
+        static let menuBarSeconds = "menuBar.seconds"
         static let cardPinned = "card.pinned"
         static let cardOrigin = "card.origin"
     }
@@ -86,6 +93,7 @@ final class HeroPrefs {
         showHero = defaults.object(forKey: Keys.show) as? Bool ?? true
         size = defaults.string(forKey: Keys.size).flatMap(Size.init(rawValue:)) ?? .medium
         wander = defaults.string(forKey: Keys.wander).flatMap(Wander.init(rawValue:)) ?? .rarely
+        menuBarSeconds = defaults.bool(forKey: Keys.menuBarSeconds)
         customAnchor = Self.load(defaults, key: Keys.anchor)
         perch = defaults.data(forKey: Keys.perch).flatMap { try? JSONDecoder().decode(Perch.self, from: $0) }
         cardPinned = defaults.bool(forKey: Keys.cardPinned)

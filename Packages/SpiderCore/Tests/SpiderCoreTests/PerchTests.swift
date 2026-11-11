@@ -98,14 +98,16 @@ struct PerchTests {
     }
 
     @Test func posesFollowTheSpotAndTheTimer() {
-        #expect(PerchSpot.top.pose(timerPose: .hanging, reaction: nil) == .sitting)
-        #expect(PerchSpot.top.pose(timerPose: .sleeping, reaction: nil) == .sittingAsleep)
-        #expect(PerchSpot.top.pose(timerPose: .waving, reaction: nil) == .sittingWaving)
-        #expect(PerchSpot.top.pose(timerPose: .sleeping, reaction: .hello) == .sittingWaving)
-        #expect(PerchSpot.bottom.pose(timerPose: .climbing, reaction: nil) == .upsideDown)
-        #expect(PerchSpot.face.pose(timerPose: .hanging, reaction: nil) == .peeking)
-        #expect(PerchSpot.left.pose(timerPose: .hanging, reaction: nil) == .clinging)
-        #expect(PerchSpot.right.pose(timerPose: .hanging, reaction: nil) == .clinging)
+        #expect(PerchSpot.top.pose(task: .paused, reaction: nil) == .sitting)
+        #expect(PerchSpot.top.pose(task: .asleep, reaction: nil) == .sittingAsleep)
+        #expect(PerchSpot.top.pose(task: .cheering, reaction: nil) == .sittingWaving)
+        #expect(PerchSpot.top.pose(task: .asleep, reaction: .hello) == .sittingWaving)
+        #expect(PerchSpot.top.pose(task: .working, reaction: nil) == .sittingWorking)
+        #expect(PerchSpot.top.pose(task: .onBreak, reaction: nil) == .sittingScrolling)
+        #expect(PerchSpot.bottom.pose(task: .onBreak, reaction: nil) == .upsideDown)
+        #expect(PerchSpot.face.pose(task: .working, reaction: nil) == .peeking)
+        #expect(PerchSpot.left.pose(task: .working, reaction: nil) == .clinging)
+        #expect(PerchSpot.right.pose(task: .working, reaction: nil) == .clinging)
         #expect(PerchSpot.left.isMirrored && !PerchSpot.right.isMirrored)
     }
 

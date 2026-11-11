@@ -186,11 +186,11 @@ struct PerchRoamerTests {
     }
 
     @Test func walkingAndSpyingPoses() {
-        #expect(PerchState(spot: .top, along: 0.5, activity: .moving).pose(timerPose: .hanging, reaction: nil) == .walking)
-        #expect(PerchState(spot: .bottom, along: 0.5, activity: .moving).pose(timerPose: .hanging, reaction: nil)
+        #expect(PerchState(spot: .top, along: 0.5, activity: .moving).pose(task: .working, reaction: nil) == .walking)
+        #expect(PerchState(spot: .bottom, along: 0.5, activity: .moving).pose(task: .working, reaction: nil)
                 == .upsideDownWalking)
-        #expect(PerchState(spot: .bottom, along: 0.5, activity: .spying).pose(timerPose: .hanging, reaction: nil) == .spying)
-        #expect(PerchState(spot: .right, along: 0.5, activity: .moving).pose(timerPose: .hanging, reaction: nil) == .clinging)
+        #expect(PerchState(spot: .bottom, along: 0.5, activity: .spying).pose(task: .working, reaction: nil) == .spying)
+        #expect(PerchState(spot: .right, along: 0.5, activity: .moving).pose(task: .working, reaction: nil) == .clinging)
         #expect(PerchState(spot: .bottom, along: 0.5).swings)
         #expect(!PerchState(spot: .bottom, along: 0.5, activity: .spying).swings)
     }

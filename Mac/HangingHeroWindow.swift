@@ -90,11 +90,13 @@ final class HangingHeroWindow {
             MainActor.assumeIsolated {
                 guard let self else { return }
                 self.ticks += 1
-                if self.prefs.perch != nil, self.ticks.isMultiple(of: 2) { self.followWidget() }
+                // The card reports its own moves; desktop widgets hardly ever move, so look rarely.
+                if self.prefs.perch != nil, self.ticks.isMultiple(of: 10) { self.followWidget() }
                 self.reposition()
                 self.roam()
             }
         }
+        followTimer?.tolerance = 0.3
         trackMouse()
         watchPrefs()
     }
@@ -294,7 +296,7 @@ final class HangingHeroWindow {
         motionTimer = nil
     }
 
-    /// Follows his widget if it was moved; if it's gone for 10 seconds (removed, or the
+    /// Follows his widget if it was moved; if it's gone for about 20 seconds (removed, or the
     /// widgets restarted), he goes back to hanging from his web where it was.
     private func followWidget() {
         guard let perch = prefs.perch, !heroView.isDragging else { return }
@@ -309,7 +311,7 @@ final class HangingHeroWindow {
             return
         }
         missedWidgetChecks += 1
-        guard missedWidgetChecks >= 5 else { return }
+        guard missedWidgetChecks >= 2 else { return }
         log.notice("Hero's widget is gone; back on his web")
         missedWidgetChecks = 0
         fallOff(perch)
@@ -399,7 +401,10 @@ final class HangingHeroWindow {
 
     private func updateMouseCatching() {
         guard !heroView.isDragging else { return }
-        let overHero = heroView.heroRectOnScreen?.contains(NSEvent.mouseLocation) ?? false
+        let mouse = NSEvent.mouseLocation
+        // Most mouse moves are nowhere near him: nothing to do.
+        if panel.ignoresMouseEvents, !heroView.isHovering, !panel.frame.contains(mouse) { return }
+        let overHero = heroView.heroRectOnScreen?.contains(mouse) ?? false
         heroView.setHovering(overHero)
         if panel.ignoresMouseEvents == overHero {
             panel.ignoresMouseEvents = !overHero

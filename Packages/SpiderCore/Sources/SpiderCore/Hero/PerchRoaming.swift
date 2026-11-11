@@ -23,12 +23,12 @@ public struct PerchState: Equatable, Sendable {
         self.activity = activity
     }
 
-    public func pose(timerPose: HeroPose, reaction: HeroReaction?) -> HeroPose {
+    public func pose(task: HeroTask, reaction: HeroReaction?) -> HeroPose {
         switch activity {
         case .resting:
-            return spot.pose(timerPose: timerPose, reaction: reaction)
+            return spot.pose(task: task, reaction: reaction)
         case .spying:
-            return spot == .bottom ? .spying : spot.pose(timerPose: timerPose, reaction: reaction)
+            return spot == .bottom ? .spying : spot.pose(task: task, reaction: reaction)
         case .moving:
             switch spot {
             case .top, .face: return .walking

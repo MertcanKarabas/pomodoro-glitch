@@ -14,12 +14,19 @@ public enum PerchSpot: String, Codable, Sendable, CaseIterable {
     /// Gripping the right side.
     case right
 
-    /// The pose for this spot, given what the timer (or the mouse) would have him do.
-    public func pose(timerPose: HeroPose, reaction: HeroReaction?) -> HeroPose {
+    /// The pose for this spot, given what the timer has him doing (and the mouse). Sitting on
+    /// top he acts it out: a laptop at work, his phone on a break.
+    public func pose(task: HeroTask, reaction: HeroReaction?) -> HeroPose {
         switch self {
         case .top:
-            if reaction == .hello || timerPose == .waving { return .sittingWaving }
-            return timerPose == .sleeping ? .sittingAsleep : .sitting
+            if reaction == .hello { return .sittingWaving }
+            return switch task {
+            case .working: .sittingWorking
+            case .onBreak: .sittingScrolling
+            case .paused: .sitting
+            case .asleep: .sittingAsleep
+            case .cheering: .sittingWaving
+            }
         case .bottom: return .upsideDown
         case .face: return .peeking
         case .left, .right: return .clinging
