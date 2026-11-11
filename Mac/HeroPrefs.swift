@@ -20,6 +20,22 @@ final class HeroPrefs {
         }
     }
 
+    /// How often he moves round a widget or the card he's sitting on, at random times.
+    enum Wander: String, CaseIterable, Identifiable {
+        case rarely, hourly, often
+
+        var id: Self { self }
+        var title: String { rawValue.capitalized }
+        /// The average wait between moves.
+        var seconds: Double {
+            switch self {
+            case .rarely: 12 * 60 * 60
+            case .hourly: 60 * 60
+            case .often: 5 * 60
+            }
+        }
+    }
+
     var showHero: Bool {
         didSet { defaults.set(showHero, forKey: Keys.show) }
     }
@@ -32,6 +48,10 @@ final class HeroPrefs {
     /// Nil: he hangs under the menu bar icon.
     var customAnchor: CGPoint? {
         didSet { save(customAnchor, key: Keys.anchor) }
+    }
+
+    var wander: Wander {
+        didSet { defaults.set(wander.rawValue, forKey: Keys.wander) }
     }
 
     /// The desktop widget he's sitting on, or nil while he's on his web.
@@ -56,6 +76,7 @@ final class HeroPrefs {
         static let size = "hero.size"
         static let anchor = "hero.anchor"
         static let perch = "hero.perch"
+        static let wander = "hero.wander"
         static let cardPinned = "card.pinned"
         static let cardOrigin = "card.origin"
     }
@@ -64,6 +85,7 @@ final class HeroPrefs {
         self.defaults = defaults
         showHero = defaults.object(forKey: Keys.show) as? Bool ?? true
         size = defaults.string(forKey: Keys.size).flatMap(Size.init(rawValue:)) ?? .medium
+        wander = defaults.string(forKey: Keys.wander).flatMap(Wander.init(rawValue:)) ?? .rarely
         customAnchor = Self.load(defaults, key: Keys.anchor)
         perch = defaults.data(forKey: Keys.perch).flatMap { try? JSONDecoder().decode(Perch.self, from: $0) }
         cardPinned = defaults.bool(forKey: Keys.cardPinned)

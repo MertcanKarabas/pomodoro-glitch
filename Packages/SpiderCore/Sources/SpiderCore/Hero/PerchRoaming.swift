@@ -137,103 +137,128 @@ public struct PerchPath: Sendable {
     }
 }
 
-/// Makes the hero wander round his widget: rest a while, then walk or climb somewhere else
-/// (often up to sit on top), and sometimes sneak underneath to spy on it. With the timer
-/// stopped he heads to the top for a nap. Times are seconds on any steady clock.
+/// Makes the hero wander round his widget at random: he stays put for a random while
+/// (about `wanderEvery` on average, but any time from minutes to many hours), then walks or
+/// climbs to a random spot, the shorter way round. Hanging underneath he now and then gets
+/// out his binoculars and spies on the widget. Times are seconds on any steady clock.
 public struct PerchRoamer: Sendable {
-    public static let firstRestSeconds: Double = 8
-    public static let restSeconds: ClosedRange<Double> = 10...25
-    public static let spySeconds: ClosedRange<Double> = 4...7
-    /// While napping, how often to check whether the timer started.
-    public static let napCheckSeconds: Double = 3
+    /// How long a spy session lasts.
+    public static let spySeconds: ClosedRange<Double> = 5...8
+    /// On average how often he spies while hanging underneath.
+    public static let spyEvery: Double = 10 * 60
+    /// The chance he spies right after arriving underneath.
+    public static let spyOnArrival = 0.5
 
-    public private(set) var state: PerchState
-    private var trip: Trip?
-    private var nextDecision: Double
-
-    private struct Trip: Sendable {
-        var position: Double
-        var remaining: Double
-        var direction: Double
-        var destination: PerchState
+    public enum Event: Equatable, Sendable {
+        /// He set off; `trip` says the way.
+        case departed
+        /// He settled somewhere new (worth remembering).
+        case arrived
+        case startedSpying
+        case stoppedSpying
     }
 
-    public init(spot: PerchSpot, along: Double, now: Double) {
+    /// A walk round the widget: from a distance along the path, this far, this way (+1 or -1).
+    public struct Trip: Equatable, Sendable {
+        public var start: Double
+        public var length: Double
+        public var direction: Double
+        public var destination: PerchState
+        var travelled: Double = 0
+
+        /// How far along the path he is now.
+        public var position: Double { start + travelled * direction }
+    }
+
+    public private(set) var state: PerchState
+    public private(set) var trip: Trip?
+    public private(set) var wanderEvery: Double
+    private var nextTrip: Double
+    private var nextSpy: Double = .infinity
+    private var spyEnds: Double?
+
+    public init(spot: PerchSpot, along: Double, now: Double, wanderEvery: Double,
+                random: inout some RandomNumberGenerator) {
         state = PerchState(spot: spot, along: along)
-        nextDecision = now + Self.firstRestSeconds
+        self.wanderEvery = wanderEvery
+        nextTrip = now + Self.wait(averaging: wanderEvery, random: &random)
+        planSpying(from: now, random: &random)
     }
 
     public var isMoving: Bool { trip != nil }
 
-    /// While moving, how far along the path he is (use `PerchPath.place(at:)` for the exact
-    /// point, which also covers the hops round corners).
-    public var travelDistance: Double? { trip?.position }
+    /// Changes how often he wanders, starting a fresh random wait.
+    public mutating func setWanderEvery(_ seconds: Double, now: Double, random: inout some RandomNumberGenerator) {
+        guard seconds != wanderEvery else { return }
+        wanderEvery = seconds
+        nextTrip = now + Self.wait(averaging: seconds, random: &random)
+    }
 
     /// Moves time on by `dt`.
     /// - Parameters:
     ///   - speed: walking speed in points per second.
-    ///   - calm: the timer isn't running: go and nap on top.
-    ///   - paused: the mouse is over him: hold still so he can be picked up.
-    /// - Returns: true when he settled somewhere new (worth remembering).
+    ///   - paused: the mouse is over him: don't set off or start spying (a walk in progress finishes).
     public mutating func advance(
-        to now: Double, dt: Double, path: PerchPath, speed: Double, calm: Bool, paused: Bool,
+        to now: Double, dt: Double, path: PerchPath, speed: Double, paused: Bool,
         random: inout some RandomNumberGenerator
-    ) -> Bool {
-        if paused {
-            nextDecision = max(nextDecision, now + 2)
-            return false
-        }
+    ) -> Event? {
         if var trip {
-            let step = speed * dt
-            if step >= trip.remaining {
+            trip.travelled += speed * dt
+            if trip.travelled >= trip.length {
                 self.trip = nil
                 state = trip.destination
-                nextDecision = now + pause(for: state.activity, random: &random)
-                return true
+                nextTrip = now + Self.wait(averaging: wanderEvery, random: &random)
+                planSpying(from: now, random: &random)
+                if state.spot == .bottom, Double.random(in: 0..<1, using: &random) < Self.spyOnArrival {
+                    startSpying(at: now, random: &random)
+                }
+                return .arrived
             }
-            trip.position += step * trip.direction
-            trip.remaining -= step
             let place = path.place(at: trip.position)
             state = PerchState(spot: place.spot, along: place.along, activity: .moving)
             self.trip = trip
-            return false
+            return nil
         }
 
-        guard now >= nextDecision else { return false }
-        if calm {
-            if state.spot == .top, state.activity == .resting {
-                nextDecision = now + Self.napCheckSeconds
-                return false
-            }
-            return travel(to: PerchState(spot: .top, along: Double.random(in: 0.3...0.7, using: &random)),
-                          path: path, now: now, random: &random)
-        }
-        if state.activity == .spying {
-            // Seen enough: hang there a while.
+        if let spyEnds {
+            guard now >= spyEnds else { return nil }
+            self.spyEnds = nil
             state.activity = .resting
-            nextDecision = now + pause(for: .resting, random: &random)
-            return true
+            planSpying(from: now, random: &random)
+            return .stoppedSpying
         }
 
-        // Somewhere new, most often up on top.
-        let roll = Double.random(in: 0..<1, using: &random)
-        let spot: PerchSpot = switch roll {
-        case ..<0.4: .top
-        case ..<0.65: .bottom
-        case ..<0.8: .face
-        case ..<0.9: .left
-        default: .right
+        if paused {
+            nextTrip = max(nextTrip, now + 2)
+            nextSpy = max(nextSpy, now + 2)
+            return nil
         }
-        let along = Double.random(in: 0.15...0.85, using: &random)
-        let spies = spot == .bottom && Double.random(in: 0..<1, using: &random) < 0.6
-        return travel(to: PerchState(spot: spot, along: along, activity: spies ? .spying : .resting),
-                      path: path, now: now, random: &random)
+        if now >= nextTrip {
+            return setOff(path: path, now: now, random: &random)
+        }
+        if now >= nextSpy {
+            startSpying(at: now, random: &random)
+            return .startedSpying
+        }
+        return nil
     }
 
-    /// Sets off the shorter way round towards `destination`. Returns true if he's already there.
+    /// Sets off for a random spot (anywhere is as likely as anywhere else).
+    private mutating func setOff(path: PerchPath, now: Double, random: inout some RandomNumberGenerator) -> Event? {
+        var destination = PerchState(spot: PerchSpot.allCases.randomElement(using: &random) ?? .top,
+                                     along: Double.random(in: 0.1...0.9, using: &random))
+        // Same edge: make it worth the walk.
+        if destination.spot == state.spot, abs(destination.along - state.along) < 0.3 {
+            destination.along = state.along < 0.5 ? Double.random(in: 0.65...0.9, using: &random)
+                                                  : Double.random(in: 0.1...0.35, using: &random)
+        }
+        return travel(to: destination, path: path, now: now, random: &random)
+    }
+
+    /// Sets off the shorter way round towards `destination`.
     mutating func travel(
         to destination: PerchState, path: PerchPath, now: Double, random: inout some RandomNumberGenerator
-    ) -> Bool {
+    ) -> Event? {
         let from = path.distance(of: state.spot, along: state.along)
         let to = path.distance(of: destination.spot, along: destination.along)
         let length = path.length
@@ -242,18 +267,29 @@ public struct PerchRoamer: Sendable {
         let backward = length - forward
         let (distance, direction) = forward <= backward ? (forward, 1.0) : (backward, -1.0)
         guard distance >= 1 else {
+            // Already there (say, from the peek spot to sitting just above it).
             state = destination
-            nextDecision = now + pause(for: destination.activity, random: &random)
-            return true
+            nextTrip = now + Self.wait(averaging: wanderEvery, random: &random)
+            planSpying(from: now, random: &random)
+            return .arrived
         }
-        trip = Trip(position: from, remaining: distance, direction: direction, destination: destination)
+        trip = Trip(start: from, length: distance, direction: direction, destination: destination)
         state.activity = .moving
-        return false
+        return .departed
     }
 
-    private func pause(for activity: PerchActivity, random: inout some RandomNumberGenerator) -> Double {
-        activity == .spying
-            ? Double.random(in: Self.spySeconds, using: &random)
-            : Double.random(in: Self.restSeconds, using: &random)
+    private mutating func startSpying(at now: Double, random: inout some RandomNumberGenerator) {
+        state.activity = .spying
+        spyEnds = now + Double.random(in: Self.spySeconds, using: &random)
+    }
+
+    private mutating func planSpying(from now: Double, random: inout some RandomNumberGenerator) {
+        nextSpy = state.spot == .bottom ? now + Self.wait(averaging: Self.spyEvery, random: &random) : .infinity
+    }
+
+    /// A random wait with this average: usually around it, sometimes much shorter or longer,
+    /// with no pattern to when the next one comes.
+    static func wait(averaging mean: Double, random: inout some RandomNumberGenerator) -> Double {
+        -mean * log(1 - Double.random(in: 0..<1, using: &random))
     }
 }

@@ -50,11 +50,6 @@ final class HangingHeroView: NSView {
     private(set) var perchState: PerchState?
     var perchSpot: PerchSpot? { perchState?.spot }
 
-    /// The timer isn't running, so on a widget he'd rather nap on top.
-    var wantsToNap: Bool {
-        HeroPlacement(state: controller.state, now: Date(), lastFinished: controller.lastFinished).pose == .sleeping
-    }
-
     /// From the top of the web down to the hero's feet at the end of work, for a hero size.
     static func hangHeight(scale: CGFloat) -> CGFloat {
         shortestWeb + dropDistance + (HeroFigure.baseSize.height - HeroFigure.grip.y) * scale + 4
@@ -89,13 +84,6 @@ final class HangingHeroView: NSView {
 
     private func setUpLayers() {
         guard let root = layer else { return }
-        let size = bounds.size
-        let top = CGPoint(x: size.width / 2, y: size.height)
-
-        // Everything hangs from the top center and swings around it.
-        swingLayer.bounds = CGRect(origin: .zero, size: size)
-        swingLayer.anchorPoint = CGPoint(x: 0.5, y: 1)
-        swingLayer.position = top
         root.addSublayer(swingLayer)
 
         for (web, width, color) in [
@@ -103,7 +91,6 @@ final class HangingHeroView: NSView {
             (webLayer, 1.4, NSColor.white.withAlphaComponent(0.95)),
         ] {
             web.anchorPoint = CGPoint(x: 0.5, y: 1)
-            web.position = top
             web.bounds = CGRect(x: 0, y: 0, width: width, height: 0)
             web.backgroundColor = color.cgColor
             swingLayer.addSublayer(web)
@@ -112,7 +99,6 @@ final class HangingHeroView: NSView {
         // A little knot where the web is tied, so it looks attached even mid-screen.
         knotLayer.bounds = CGRect(x: 0, y: 0, width: 6, height: 6)
         knotLayer.cornerRadius = 3
-        knotLayer.position = CGPoint(x: top.x, y: top.y - 3)
         knotLayer.backgroundColor = NSColor.white.cgColor
         knotLayer.borderColor = NSColor.black.withAlphaComponent(0.35).cgColor
         knotLayer.borderWidth = 0.8
@@ -120,12 +106,86 @@ final class HangingHeroView: NSView {
 
         heroLayer.contentsGravity = .resizeAspect
         swingLayer.addSublayer(heroLayer)
+        layOutLayers()
+    }
+
+    /// On his web the window is a narrow strip and everything hangs from its top center;
+    /// on a widget it covers the widget and he moves about inside it.
+    override func setFrameSize(_ newSize: NSSize) {
+        super.setFrameSize(newSize)
+        layOutLayers()
+    }
+
+    private func layOutLayers() {
+        let top = CGPoint(x: bounds.midX, y: bounds.height)
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        swingLayer.bounds = CGRect(origin: .zero, size: bounds.size)
+        if perchState != nil {
+            swingLayer.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+            swingLayer.position = CGPoint(x: bounds.midX, y: bounds.midY)
+        } else {
+            swingLayer.anchorPoint = CGPoint(x: 0.5, y: 1)
+            swingLayer.position = top
+            if let webLength {
+                heroLayer.position = CGPoint(x: top.x, y: top.y - webLength)
+            }
+        }
+        for web in [webEdgeLayer, webLayer] {
+            web.position = top
+        }
+        knotLayer.position = CGPoint(x: top.x, y: top.y - 3)
+        CATransaction.commit()
     }
 
     // MARK: - Widgets
 
-    /// In the window, the point he holds on to the widget with (seat, feet or hands).
-    var perchPoint: CGPoint { CGPoint(x: bounds.midX, y: bounds.midY) }
+    /// Puts him at a point in the window (on a widget), stopping any walk or jump.
+    func placeHero(at point: CGPoint) {
+        guard perchState != nil, heroLayer.position != point else { return }
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        heroLayer.removeAnimation(forKey: "travel")
+        heroLayer.position = point
+        CATransaction.commit()
+    }
+
+    /// Walks him through these points (in the window) at an even pace. Core Animation moves
+    /// him, so it's smooth at the display's refresh rate and costs the app nothing.
+    func walk(through points: [CGPoint], duration: Double) {
+        guard perchState != nil, let last = points.last else { return }
+        guard points.count > 1, duration > 0 else { return placeHero(at: last) }
+        let route = CGMutablePath()
+        route.addLines(between: points)
+        let walk = CAKeyframeAnimation(keyPath: "position")
+        walk.path = route
+        walk.calculationMode = .paced
+        walk.duration = duration
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        heroLayer.position = last
+        heroLayer.add(walk, forKey: "travel")
+        CATransaction.commit()
+    }
+
+    /// A little jump in an arc, from where he was let go onto the widget's edge.
+    func hop(from start: CGPoint, to end: CGPoint) {
+        guard perchState != nil else { return }
+        let route = CGMutablePath()
+        route.move(to: start)
+        let lift = 24 + abs(end.x - start.x) * 0.2
+        route.addQuadCurve(to: end, control: CGPoint(x: (start.x + end.x) / 2, y: max(start.y, end.y) + lift))
+        let jump = CAKeyframeAnimation(keyPath: "position")
+        jump.path = route
+        jump.calculationMode = .paced
+        jump.duration = 0.38
+        jump.timingFunctions = [CAMediaTimingFunction(name: .easeInEaseOut)]
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        heroLayer.position = end
+        heroLayer.add(jump, forKey: "travel")
+        CATransaction.commit()
+    }
 
     /// In the window, his hands on the web.
     var gripPoint: CGPoint {
@@ -151,19 +211,17 @@ final class HangingHeroView: NSView {
         for web in [webEdgeLayer, webLayer, knotLayer] {
             web.isHidden = spot != nil
         }
-        swingLayer.removeAnimation(forKey: "swing")
+        for key in ["swing", "travel"] {
+            swingLayer.removeAnimation(forKey: key)
+            heroLayer.removeAnimation(forKey: key)
+        }
         isSwinging = false
-        if spot != nil {
-            swingLayer.anchorPoint = CGPoint(x: 0.5, y: 0.5)
-            swingLayer.position = perchPoint
-            heroLayer.position = perchPoint
-        } else {
-            swingLayer.anchorPoint = CGPoint(x: 0.5, y: 1)
-            swingLayer.position = CGPoint(x: bounds.midX, y: bounds.height)
+        if spot == nil {
             // Hang him back on the web right away, without gliding there.
             webLength = nil
         }
         CATransaction.commit()
+        layOutLayers()
         mirror(spot)
 
         shownPose = nil
@@ -184,11 +242,19 @@ final class HangingHeroView: NSView {
     /// Only this area catches the mouse; everywhere else clicks go to the windows below.
     var heroRectOnScreen: NSRect? {
         guard prefs.showHero, let window, let root = layer, heroLayer.contents != nil else { return nil }
-        var inView = root.convert(heroLayer.frame, from: swingLayer).insetBy(dx: -8, dy: -6)
-        if perchSpot == .face {
-            // Peeking, the rest of him is behind the edge: leave the widget (or card) under it clickable.
-            let edge = perchPoint.y - 4
-            inView = NSRect(x: inView.minX, y: edge, width: inView.width, height: max(0, inView.maxY - edge))
+        var inView: NSRect
+        if perchState != nil {
+            // On a widget the hero layer sits straight in the window; mid-walk, use where he is
+            // on screen right now, not where he's heading.
+            let hero = heroLayer.presentation() ?? heroLayer
+            inView = hero.frame.insetBy(dx: -6, dy: -4)
+            if perchSpot == .face {
+                // Peeking, the rest of him is behind the edge: leave the widget (or card) under it clickable.
+                let edge = hero.position.y - 4
+                inView = NSRect(x: inView.minX, y: edge, width: inView.width, height: max(0, inView.maxY - edge))
+            }
+        } else {
+            inView = root.convert(heroLayer.frame, from: swingLayer).insetBy(dx: -8, dy: -6)
         }
         return window.convertToScreen(convert(inView, to: nil))
     }
@@ -311,6 +377,8 @@ final class HangingHeroView: NSView {
 
     private func show(pose: HeroPose, scale: CGFloat) {
         if let shownPose, shownPose.pose == pose, shownPose.scale == scale { return }
+        // Blend from one pose into the next instead of snapping.
+        let blend = shownPose != nil && shownPose?.scale == scale
         shownPose = (pose, scale)
 
         let backing = window?.backingScaleFactor ?? NSScreen.main?.backingScaleFactor ?? 2
@@ -324,6 +392,12 @@ final class HangingHeroView: NSView {
         heroLayer.anchorPoint = CGPoint(x: layout.contact.x / layout.size.width,
                                         y: 1 - layout.contact.y / layout.size.height)
         heroLayer.contentsScale = backing
+        if blend {
+            let fade = CATransition()
+            fade.type = .fade
+            fade.duration = 0.2
+            heroLayer.add(fade, forKey: "poseFade")
+        }
         heroLayer.contents = flipBook.images.first
         heroLayer.removeAnimation(forKey: "flipBook")
         if flipBook.images.count > 1 {
@@ -337,22 +411,23 @@ final class HangingHeroView: NSView {
         CATransaction.commit()
     }
 
+    /// On his web the whole web swings from the top; on a widget he sways from where he holds on.
     private func setSwinging(_ swinging: Bool) {
         guard swinging != isSwinging else { return }
         isSwinging = swinging
-        if swinging {
-            let angle = 3 * CGFloat.pi / 180
-            let swing = CABasicAnimation(keyPath: "transform.rotation.z")
-            swing.fromValue = -angle
-            swing.toValue = angle
-            swing.duration = 1.7
-            swing.autoreverses = true
-            swing.repeatCount = .infinity
-            swing.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-            swingLayer.add(swing, forKey: "swing")
-        } else {
-            swingLayer.removeAnimation(forKey: "swing")
-        }
+        swingLayer.removeAnimation(forKey: "swing")
+        heroLayer.removeAnimation(forKey: "swing")
+        guard swinging else { return }
+        let angle = 3 * CGFloat.pi / 180
+        let swing = CABasicAnimation(keyPath: "transform.rotation.z")
+        swing.fromValue = -angle
+        swing.toValue = angle
+        swing.duration = 1.7
+        swing.autoreverses = true
+        swing.repeatCount = .infinity
+        swing.isAdditive = true
+        swing.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        (perchState != nil ? heroLayer : swingLayer).add(swing, forKey: "swing")
     }
 
     private func setWebLength(_ length: CGFloat) {
@@ -391,22 +466,23 @@ final class HeroFrames {
         let key = "\(pose.rawValue)-\(scale)-\(backingScale)"
         if let cached = cache[key] { return cached }
 
-        // Frame times line up with each pose's motion cycle in HeroDrawing.
+        // Frame times line up with each pose's motion cycle in HeroDrawing. More frames make
+        // smoother motion; still poses need just one.
+        func loop(_ cycle: Double, _ count: Int) -> ([Double], Double) {
+            ((0..<count).map { cycle * Double($0) / Double(count) }, cycle / Double(count))
+        }
         let (times, frameDuration): ([Double], Double) = switch pose {
-        case .hanging: ([0], 1)
-        case .climbing: ([0, 0.225, 0.45, 0.675], 0.225)
-        case .waving: ([0, 0.175, 0.35, 0.525], 0.175)
-        case .sleeping: ([0, 0.4, 0.8, 1.2, 1.6, 2.0], 0.4)
-        case .dizzy: (stride(from: 0, to: 1.6, by: 0.2).map { $0 }, 0.2)
-        case .grumpy: (stride(from: 0, to: 1.2, by: 0.1).map { $0 }, 0.1)
-        case .sitting: (stride(from: 0, to: 1.2, by: 0.2).map { $0 }, 0.2)
-        case .sittingAsleep: ([0, 0.4, 0.8, 1.2, 1.6, 2.0], 0.4)
-        case .sittingWaving: ([0, 0.175, 0.35, 0.525], 0.175)
-        case .upsideDown: ([0], 1)
-        case .peeking: (stride(from: 0, to: 3.0, by: 0.25).map { $0 }, 0.25)
-        case .clinging: (stride(from: 0, to: 1.6, by: 0.2).map { $0 }, 0.2)
-        case .walking, .upsideDownWalking: (stride(from: 0, to: 0.6, by: 0.1).map { $0 }, 0.1)
-        case .spying: (stride(from: 0, to: 2.4, by: 0.3).map { $0 }, 0.3)
+        case .hanging, .upsideDown: ([0], 1)
+        case .climbing: loop(0.9, 8)
+        case .waving, .sittingWaving: loop(0.7, 8)
+        case .sleeping, .sittingAsleep: loop(2.4, 12)
+        case .dizzy: loop(1.6, 12)
+        case .grumpy: loop(1.2, 12)
+        case .sitting: loop(1.2, 12)
+        case .peeking: loop(3.0, 20)
+        case .clinging: loop(1.6, 12)
+        case .walking, .upsideDownWalking: loop(0.6, 10)
+        case .spying: loop(2.4, 12)
         }
         let images = times.compactMap { time -> CGImage? in
             let renderer = ImageRenderer(content: HeroFigure(pose: pose, time: time, scale: scale))

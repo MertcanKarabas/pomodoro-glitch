@@ -114,8 +114,16 @@ private struct SettingsForm: View {
             }
             .pickerStyle(.segmented)
             .disabled(!heroPrefs.showHero)
+            Picker("Wandering", selection: $heroPrefs.wander) {
+                ForEach(HeroPrefs.Wander.allCases) { wander in
+                    Text(wander.title).tag(wander)
+                }
+            }
+            .pickerStyle(.segmented)
+            .disabled(!heroPrefs.showHero)
+            .help("How often he moves round a widget or the pinned card, at random times. Rarely is about twice a day.")
             HStack(alignment: .firstTextBaseline) {
-                Text("Drag the hero to move him, or onto a desktop widget to climb it. Click him for a timer card.")
+                Text("Drag the hero to move him, or onto the pinned card or a desktop widget to climb it. Click him for a timer card.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)

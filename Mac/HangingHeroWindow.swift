@@ -16,6 +16,9 @@ import SpiderCore
 @MainActor
 final class HangingHeroWindow {
     static let size = NSSize(width: 170, height: 380)
+    /// On a widget the window covers it with this much room round it for him to sit, hang
+    /// or climb in.
+    static let perchRoom: CGFloat = 130
 
     private let panel: NSPanel
     private let heroView: HangingHeroView
@@ -27,8 +30,6 @@ final class HangingHeroWindow {
     private var mouseMonitors: [Any] = []
     /// Window level of the desktop widgets, from the last look at them.
     private var widgetLevel: Int?
-    /// Where the window was put for the current perch (so repeated checks don't restart the climb).
-    private var perchOrigin: NSPoint?
     private var missedWidgetChecks = 0
     private var ticks = 0
     /// Wanders him round his widget while he's on one.
@@ -100,13 +101,15 @@ final class HangingHeroWindow {
 
     // MARK: - Position
 
-    private func reposition(animated: Bool = false) {
+    /// - Parameter hopFrom: where he was let go (screen point), to jump from onto a widget.
+    private func reposition(hopFrom: NSPoint? = nil) {
         guard !heroView.isDragging else { return }
         if let perch = prefs.perch {
             if roamer == nil {
-                roamer = PerchRoamer(spot: perch.spot, along: perch.along, now: CACurrentMediaTime())
+                roamer = PerchRoamer(spot: perch.spot, along: perch.along, now: CACurrentMediaTime(),
+                                     wanderEvery: prefs.wander.seconds, random: &random)
             }
-            placeOnWidget(perch, animated: animated)
+            placeOnWidget(perch, hopFrom: hopFrom)
             return
         }
         if heroView.perchSpot != nil || roamer != nil {
@@ -130,13 +133,15 @@ final class HangingHeroWindow {
     /// there (moved so his whole drop fits on that display).
     private func heroDropped() {
         let mouse = NSEvent.mouseLocation
+        // His hands as he was let go, to jump from.
+        let hands = NSPoint(x: panel.frame.minX + heroView.gripPoint.x, y: panel.frame.minY + heroView.gripPoint.y)
         // The card floats above everything, so it comes first.
         if let card = cardFrame?(), card.insetBy(dx: -PerchGeometry.reach, dy: -PerchGeometry.reach).contains(mouse) {
             let perch = PerchGeometry.perch(droppedAt: mouse, on: card, surface: .timerCard)
             log.notice("Hero climbed onto the timer card: \(perch.spot.rawValue, privacy: .public)")
             roamer = nil
             prefs.perch = perch
-            reposition(animated: true)
+            reposition(hopFrom: hands)
             return
         }
         let scan = DesktopWidgets.scan()
@@ -148,7 +153,7 @@ final class HangingHeroWindow {
             log.notice("Hero climbed onto a widget: \(perch.spot.rawValue, privacy: .public)")
             roamer = nil
             prefs.perch = perch
-            reposition(animated: true)
+            reposition(hopFrom: hands)
             return
         }
         log.notice("Hero dropped; \(scan.widgets.count, privacy: .public) desktop widgets found")
@@ -183,7 +188,7 @@ final class HangingHeroWindow {
         PerchPath(widget: perch.widget, edgeMargin: perchMargins.edge, sideMargin: perchMargins.side)
     }
 
-    private func placeOnWidget(_ perch: Perch, animated: Bool) {
+    private func placeOnWidget(_ perch: Perch, hopFrom: NSPoint? = nil) {
         let state = roamer?.state ?? PerchState(spot: perch.spot, along: perch.along)
         heroView.setPerch(state)
         let level: NSWindow.Level = switch perch.surface {
@@ -196,26 +201,28 @@ final class HangingHeroWindow {
         }
         if panel.level != level { panel.level = level }
 
-        // Where he holds on: on his way somewhere, the exact point on the path (corners included).
-        let contact = roamer?.travelDistance.map { path(round: perch).place(at: $0).point }
-            ?? PerchGeometry.contact(for: Perch(spot: state.spot, surface: perch.surface, widget: perch.widget,
-                                                along: state.along),
-                                     edgeMargin: perchMargins.edge, sideMargin: perchMargins.side)
-        let origin = NSPoint(x: contact.x - heroView.perchPoint.x, y: contact.y - heroView.perchPoint.y)
-        guard origin != perchOrigin else { return }
-        perchOrigin = origin
-        lastAnchor = nil
-        let frame = NSRect(origin: origin, size: panel.frame.size)
-        if animated {
-            // A quick hop from where he was dropped onto the edge.
-            NSAnimationContext.runAnimationGroup { context in
-                context.duration = 0.25
-                context.timingFunction = CAMediaTimingFunction(name: .easeOut)
-                panel.animator().setFrame(frame, display: true)
-            }
-        } else {
+        // The window covers the widget (and moves with it); he moves about inside.
+        let frame = perch.widget.insetBy(dx: -Self.perchRoom, dy: -Self.perchRoom)
+        if panel.frame != frame {
             panel.setFrame(frame, display: true)
         }
+        lastAnchor = nil
+        // Mid-walk, Core Animation is moving him.
+        guard roamer?.isMoving != true else { return }
+        let contact = PerchGeometry.contact(
+            for: Perch(spot: state.spot, surface: perch.surface, widget: perch.widget, along: state.along),
+            edgeMargin: perchMargins.edge, sideMargin: perchMargins.side
+        )
+        let spot = inWindow(contact)
+        if let hopFrom {
+            heroView.hop(from: inWindow(hopFrom), to: spot)
+        } else {
+            heroView.placeHero(at: spot)
+        }
+    }
+
+    private func inWindow(_ point: NSPoint) -> CGPoint {
+        CGPoint(x: point.x - panel.frame.minX, y: point.y - panel.frame.minY)
     }
 
     private func leaveWidget() {
@@ -223,35 +230,59 @@ final class HangingHeroWindow {
         stopMotion()
         heroView.setPerch(nil)
         panel.level = .floating
-        perchOrigin = nil
+        if panel.frame.size != Self.size {
+            panel.setFrame(NSRect(origin: panel.frame.origin, size: Self.size), display: true)
+        }
         lastAnchor = nil
     }
 
     // MARK: - Wandering
 
-    /// Lets him wander: every second while he rests, 30 times a second while he walks.
+    /// Lets him wander at random times. Checks once a second while he rests; while he walks,
+    /// Core Animation moves him and this only switches his pose at the corners (10 times a second).
     private func roam() {
         guard let perch = prefs.perch, var roamer, !heroView.isDragging else { return stopMotion() }
         let now = CACurrentMediaTime()
-        let dt = min(now - (lastRoamTick ?? now), 0.1)
+        let dt = min(now - (lastRoamTick ?? now), 0.5)
         lastRoamTick = now
-        let settled = roamer.advance(
-            to: now, dt: dt, path: path(round: perch), speed: 70 * prefs.size.scale,
-            calm: heroView.wantsToNap, paused: heroView.isHovering, random: &random
-        )
+        let path = path(round: perch)
+        let speed = 70 * prefs.size.scale
+        roamer.setWanderEvery(prefs.wander.seconds, now: now, random: &random)
+        let event = roamer.advance(to: now, dt: dt, path: path, speed: speed,
+                                   paused: heroView.isHovering, random: &random)
         self.roamer = roamer
-        placeOnWidget(perch, animated: false)
-        if settled {
+        heroView.setPerch(roamer.state)
+        switch event {
+        case .departed:
+            if let trip = roamer.trip {
+                log.notice("Hero is off to the \(trip.destination.spot.rawValue, privacy: .public)")
+                heroView.walk(through: route(for: trip, along: path), duration: trip.length / speed)
+            }
+        case .arrived:
             // Remember where he settled, so he's there after a restart.
             let state = roamer.state
             prefs.perch = Perch(spot: state.spot, surface: perch.surface, widget: perch.widget, along: state.along)
+        case .startedSpying, .stoppedSpying, nil:
+            break
         }
         if roamer.isMoving { startMotion() } else { stopMotion() }
     }
 
+    /// Points every few points along his way, in the window.
+    private func route(for trip: PerchRoamer.Trip, along path: PerchPath) -> [CGPoint] {
+        var points: [CGPoint] = []
+        var travelled = 0.0
+        while travelled < trip.length {
+            points.append(inWindow(path.place(at: trip.start + travelled * trip.direction).point))
+            travelled += 3
+        }
+        points.append(inWindow(path.place(at: trip.start + trip.length * trip.direction).point))
+        return points
+    }
+
     private func startMotion() {
         guard motionTimer == nil else { return }
-        let timer = Timer(timeInterval: 1.0 / 30, repeats: true) { [weak self] _ in
+        let timer = Timer(timeInterval: 1.0 / 10, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.roam() }
         }
         RunLoop.main.add(timer, forMode: .common)
