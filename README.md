@@ -6,7 +6,8 @@
 
 <p align="center">
   A pomodoro timer for Mac and iPhone with a little spider hero who hangs from the top of your screen.<br>
-  He drops lower as your work time runs out, climbs back up during breaks, and keeps both devices in sync.
+  He drops lower as your work time runs out, climbs back up during breaks, and keeps both devices in sync.<br>
+  On the Mac you can pick him up, play with him, and let him sit on your timer while you work.
 </p>
 
 <p align="center">
@@ -26,25 +27,47 @@
 
 ## What it does
 
-- **Hero on a web.** Work time: the hero hangs from the top and drops as the minutes pass. Break: he climbs back up. Phase over: he waves. Not started: he sleeps.
-- **Mac menu bar.** Minutes left (like **24m**) next to the hero icon in the menu bar, and the hero hanging right under it on your desktop. Click the icon for the timer panel. Turn on **Settings → Seconds in menu bar** for a full 24:13 countdown.
-- **Move the hero.** Drag him anywhere on your screen and his web starts from there. **Settings → Back under the menu bar** puts him back. Clicks around him still reach the windows underneath.
-- **Timer card.** Click the hero for a small card with the countdown, Pause and Skip. Pin it (or just drag it) to keep it on screen as its own window; it comes back after a restart, and it always stays clear of the screen edges and the Dock.
-- **Work and breaks.** Sitting on the card or a widget, he types on a little laptop (coffee beside him) while you work, and scrolls his phone on breaks, laughing now and then. On his web during a break he takes turns climbing and hanging on one-handed to scroll his phone.
-- **Play with him.** Point at the hero and he waves. Carry him around and he dangles from his hands. Shake him and he gets dizzy; keep shaking and he gets grumpy.
-- **Climbing.** Drop the hero on the pinned timer card or a desktop widget and he climbs onto it: near the top edge he sits on it swinging his legs, near the bottom he hangs upside down under it, near a side he grips that side, and in the middle he climbs behind it and peeks over the top. Now and then, at random times (about twice a day; **Settings → Wandering** makes it hourly or every few minutes), he walks or climbs round to another spot. Hanging underneath he sometimes gets out binoculars and spies on it. Point at him and he holds still. He moves with the card when you drag it, and on a desktop widget app windows cover him just like they cover the widget. Drag him off to put him back on his web. (macOS doesn't tell apps which widget is which, so he climbs any desktop widget.)
-- **iPhone.** The hero hangs from the Dynamic Island, with a live countdown in the island and on the Lock Screen.
-- **Widgets.** Home screen, Lock Screen and Mac desktop widgets with Start/Pause and Skip buttons that work without opening the app.
-- **Mac and iPhone in sync.** Press Start on one, the other follows within seconds, through your own iCloud.
-- **Alerts.** A notification when work or a break ends, even with the app closed. Can be switched off per device.
-- **Today's count.** "Today: 3 rounds · 75 min".
-- **Your rhythm.** 25 / 5 / 15 minutes and a long break every 4 rounds by default, all adjustable. Breaks can start by themselves.
-- **Light on battery.** The Mac hero is drawn with Core Animation, so he swings, drops and walks inside macOS itself, and the menu bar changes once a minute. The app uses about 0.5% CPU with the timer running and next to nothing while idle.
+### The hero
+
+- **On his web.** Work time: he hangs from the top and drops as the minutes pass. Break: he climbs back up, now and then hanging on one-handed to scroll his phone. Phase over: he waves. Not started: he sleeps.
+- **Move him** (Mac). Drag him anywhere on your screen and his web starts where you drop him. Clicks around him still reach the windows underneath.
+- **Play with him** (Mac). Point at him and he waves. Carry him around and he dangles from his hands. Shake him and he gets dizzy; keep shaking and he gets grumpy.
+- **Climbing** (Mac). Drop him on the pinned timer card or a desktop widget and he climbs onto it. Where you drop him picks the spot: sitting on top, hanging upside down underneath, gripping a side, or peeking over from behind.
+- **Busy on top.** Sitting on the card or a widget, he types on a little laptop while you work (coffee beside him) and scrolls his phone on breaks, laughing now and then.
+- **Wandering.** Now and then, at random times (about twice a day), he walks or climbs round to another spot. Underneath he sometimes gets out binoculars and spies on it. Point at him and he holds still; drag him off to put him back on his web.
+
+<p align="center">
+  <img src="docs/images/mac-hanging-hero.png" width="720" alt="The hero on his web: sleeping before you start, halfway down during work, waving when work is done, climbing back up on a break">
+</p>
+<p align="center">
+  <img src="docs/images/mac-card-hero.png" width="720" alt="The hero on the timer card: typing on a laptop at work, laughing at his phone on a break, spying through binoculars from underneath, peeking over the top">
+</p>
+<p align="center">
+  <img src="docs/images/mac-play.png" width="720" alt="Playing with the hero: dangling while carried by the mouse, dizzy after a shake, grumpy after a lot of shaking, gripping the side of the card">
+</p>
+
+### On your Mac
+
+- **Menu bar.** Minutes left (like **24m**) next to the hero icon. Click it for the timer panel with the full countdown, Start/Pause, Skip, Reset and Settings.
+- **Timer card.** Click the hero for a small card with the countdown, Start/Pause and Skip. Pin it (or just drag it) to keep it on screen as its own window. It stays clear of the screen edges and the Dock, and comes back after a restart.
+- **Desktop widget** with Start/Pause and Skip buttons that work without opening the app.
+- **Light on battery.** The hero is drawn with Core Animation, so he swings, drops and walks inside macOS itself. With the timer running the app uses about 0.5% CPU, and next to nothing while idle.
 
 <p align="center">
   <img src="docs/images/mac-panel.png" width="300" alt="Mac menu bar panel with countdown, progress and today's count">
-  <img src="docs/images/mac-hanging-hero.png" width="520" alt="The hero hanging under the menu bar: sleeping, working, waving, climbing">
 </p>
+
+### On your iPhone
+
+- **Dynamic Island.** The hero hangs from the island, with a live countdown in the island and on the Lock Screen.
+- **Widgets.** Home screen and Lock Screen widgets with Start/Pause and Skip buttons.
+
+### Everywhere
+
+- **Mac and iPhone in sync.** Press Start on one, the other follows within seconds, through your own iCloud.
+- **Alerts.** A notification when work or a break ends, even with the app closed. Can be switched off per device.
+- **Today's count.** "Today: 3 rounds · 75 min".
+- **Your rhythm.** 25 / 5 / 15 minutes and a long break every 4 rounds by default, all adjustable. Breaks (and work) can start by themselves.
 
 ## Mac
 
@@ -59,6 +82,26 @@
 Add the desktop widget: right-click the desktop → **Edit Widgets** → search "Spider".
 
 To quit, click the hero in the menu bar → **Quit Spider Pomodoro**. To uninstall, drag the app from Applications to the Trash.
+
+### Settings
+
+Click the hero in the menu bar → **Settings**:
+
+| Setting | What it does |
+|---|---|
+| Alert when a phase ends | A notification when work or a break is over, even with the app closed. (While it's running, the Mac app also plays a short sound.) |
+| Seconds in menu bar | Shows **24:13** instead of **24m**. Uses a little more battery: the menu bar then redraws every second. |
+| Hanging hero on desktop | Shows or hides the hero. |
+| Hero size | Small, Medium or Large. |
+| Wandering | How often he moves round the card or a widget he's on: **Rarely** (about twice a day), **Hourly** or **Often** (every few minutes). Always at random times. |
+| Back under the menu bar | Takes him off wherever you put him and hangs him under the menu bar icon again. |
+| Work, Break, Long break, rounds | Your rhythm. New times apply from the next phase. |
+| Auto-start breaks / work | Starts the next phase by itself. |
+| Check for Updates | Checks now. **Check for updates automatically** turns the daily check on or off. |
+
+### The hero on widgets
+
+He climbs any desktop widget, not just Spider Pomodoro's: macOS doesn't tell apps which widget is which. On a desktop widget, app windows cover him just like they cover the widget; on the pinned timer card he stays in front with the card and moves with it when you drag it. If the widget is removed or the card closed, he goes back to hanging from his web.
 
 ### Updates
 
@@ -81,7 +124,9 @@ The iPhone app works on its own too; with the Mac app on the same iCloud account
 
 - Sync uses **your own iCloud** (CloudKit private database). The timer lives in your iCloud account, not on any server of ours.
 - Both devices need to be signed in to the same Apple ID with iCloud turned on.
-- No accounts, no analytics, no tracking. Nothing leaves your devices except to your iCloud.
+- No accounts, no analytics, no tracking.
+- The Mac app asks GitHub once a day whether there's a new version. It sends nothing about you; GitHub sees an ordinary web request. You can switch this off in Settings.
+- To let the hero climb desktop widgets, the Mac app looks up where windows are on screen (their positions only). It never captures or records your screen, and needs no screen-recording permission.
 
 ## Handy extras
 
@@ -130,22 +175,22 @@ cd Packages/SpiderCore && swift test
 
 ### Releasing a new Mac version
 
-1. Bump `MARKETING_VERSION` in `project.yml` (for example `"1.1"`).
+1. In `project.yml`, bump `MARKETING_VERSION` (for example `"1.4"`) and `CURRENT_PROJECT_VERSION` (for example `"5"`).
 2. Build the signed, notarized disk image (needs Xcode signed in to the Developer ID account):
    ```bash
    scripts/release-mac.sh
    ```
 3. Publish it as the latest GitHub release, tagged with the same version. The asset must be named `SpiderPomodoro.dmg`; the app's update check and the README download link look for it:
    ```bash
-   gh release create v1.1 build/release/SpiderPomodoro.dmg --title "Spider Pomodoro 1.1" --notes "What's new…"
+   gh release create v1.4 build/release/SpiderPomodoro.dmg --title "Spider Pomodoro 1.4" --notes "What's new…"
    ```
 
 ### How it's put together
 
 | Folder | What's inside |
 |---|---|
-| `Packages/SpiderCore` | Timer logic, iCloud sync, hero drawing, widget timeline, button intents, tests |
-| `Mac` | Menu bar app and the hanging-hero window |
+| `Packages/SpiderCore` | Timer logic, iCloud sync, hero drawing and poses, hero placement, reactions and wandering, widget timeline, button intents, tests |
+| `Mac` | Menu bar app, the hero's window (web, dragging, climbing), the timer card, finding desktop widgets |
 | `iOS` | iPhone app and the Dynamic Island / Lock Screen Live Activity |
 | `Widgets` | Widget and Live Activity views shared by iPhone and Mac |
 | `project.yml` | Xcode project definition (XcodeGen) |
