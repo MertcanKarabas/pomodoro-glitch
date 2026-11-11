@@ -114,6 +114,19 @@ private struct SettingsForm: View {
             }
             .pickerStyle(.segmented)
             .disabled(!heroPrefs.showHero)
+            HStack(alignment: .firstTextBaseline) {
+                Text("Drag the hero to move him, or onto a desktop widget to climb it. Click him for a timer card.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 6)
+                Button("Back under the menu bar") {
+                    heroPrefs.perch = nil
+                    heroPrefs.customAnchor = nil
+                }
+                .controlSize(.small)
+                .disabled(!heroPrefs.showHero || (heroPrefs.customAnchor == nil && heroPrefs.perch == nil))
+            }
 
             Divider()
                 .padding(.vertical, 2)

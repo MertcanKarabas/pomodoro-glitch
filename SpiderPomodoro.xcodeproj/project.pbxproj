@@ -19,6 +19,7 @@
 		5C8044285D9A5E7BD5B33AFD /* SpiderWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91305E8FF842BED3D5C11635 /* SpiderWidgetBundle.swift */; };
 		6A942687A1F464583722E2C7 /* SpiderWidgetsiOS.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 68DF063C7568B3925B7002D1 /* SpiderWidgetsiOS.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		6C40FEB6377434EC84C10EE6 /* TimerProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850D2F009565BDC9606DEDAE /* TimerProvider.swift */; };
+		6E64E67CC277FD680DEE3779 /* DesktopWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1F18ED0EE168AAF19B24EA /* DesktopWidgets.swift */; };
 		7410BD81140CFE5F7DECDCCA /* LiveActivityViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD6F46E1648973CD7384619 /* LiveActivityViews.swift */; };
 		74BCF9A02CC35B3201841640 /* PhaseSound.swift in Sources */ = {isa = PBXBuildFile; fileRef = 782530EF6BAA2FAA7EAB12D7 /* PhaseSound.swift */; };
 		813B0BD6B7DFB378E49CD702 /* HangingHeroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27A8F8BB34E16D19C947607B /* HangingHeroView.swift */; };
@@ -35,6 +36,7 @@
 		CE3C31FA7D453C7EA23AD082 /* HangingHeroWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03F7D061DF1EB7DDA25C37CE /* HangingHeroWindow.swift */; };
 		D8EE74B3FBCFE794613FE976 /* StatusItemController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 310CCD558A7A71D5395D47B9 /* StatusItemController.swift */; };
 		E19720ACBD146D39CD63C47B /* TimerProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850D2F009565BDC9606DEDAE /* TimerProvider.swift */; };
+		E8D1200C7AD541FC6D708B8E /* TimerCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E0319852EB14278763F4120 /* TimerCard.swift */; };
 		F1EECE4243CDF962BB93861D /* SpiderPomodoroApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A13B2D886E3A4225293752AE /* SpiderPomodoroApp.swift */; };
 		F71D708881CB41DD91028468 /* SpiderCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5DA5B5DD6D5F004EE97D15BC /* SpiderCore */; };
 		FAA0EBC5127676A538BC391B /* LiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F132C3CD77C30EDC5B0EDDD1 /* LiveActivityManager.swift */; };
@@ -92,6 +94,7 @@
 		2DB943C7A40004CCDE15F36E /* AppIntentsRegistration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIntentsRegistration.swift; sourceTree = "<group>"; };
 		310CCD558A7A71D5395D47B9 /* StatusItemController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusItemController.swift; sourceTree = "<group>"; };
 		39D17A3DB1753E6A8EF08669 /* SpiderPomodoroMac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SpiderPomodoroMac.entitlements; sourceTree = "<group>"; };
+		3E0319852EB14278763F4120 /* TimerCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerCard.swift; sourceTree = "<group>"; };
 		3EFCFFCF00FB16CE7A1BC018 /* SpiderCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SpiderCore; path = Packages/SpiderCore; sourceTree = SOURCE_ROOT; };
 		41E724409585B7D3DFFCB8D6 /* TimerWidgetViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerWidgetViews.swift; sourceTree = "<group>"; };
 		55EB7B22117E2EA0143BF789 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -106,6 +109,7 @@
 		A3E9AED614FB70CBD4D52494 /* SpiderPomodoroiOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SpiderPomodoroiOS.entitlements; sourceTree = "<group>"; };
 		B971DD648C895AAFFCB122A5 /* SpiderPomodoroiOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SpiderPomodoroiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BCC63150C79367D8F96063D9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		BE1F18ED0EE168AAF19B24EA /* DesktopWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesktopWidgets.swift; sourceTree = "<group>"; };
 		BE8F8011CCE330A2986C7348 /* SpiderPomodoroMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SpiderPomodoroMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C21E95B80A8564B3675A6493 /* TimerIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerIntents.swift; sourceTree = "<group>"; };
 		D4824D3AB993138F3A0CAE9D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -177,6 +181,7 @@
 			isa = PBXGroup;
 			children = (
 				BCC63150C79367D8F96063D9 /* Assets.xcassets */,
+				BE1F18ED0EE168AAF19B24EA /* DesktopWidgets.swift */,
 				27A8F8BB34E16D19C947607B /* HangingHeroView.swift */,
 				03F7D061DF1EB7DDA25C37CE /* HangingHeroWindow.swift */,
 				020657CDDEBB4AB43E0B8751 /* HeroIcon.swift */,
@@ -186,6 +191,7 @@
 				A13B2D886E3A4225293752AE /* SpiderPomodoroApp.swift */,
 				39D17A3DB1753E6A8EF08669 /* SpiderPomodoroMac.entitlements */,
 				310CCD558A7A71D5395D47B9 /* StatusItemController.swift */,
+				3E0319852EB14278763F4120 /* TimerCard.swift */,
 				1D8BFEFF0B4747FBAF465430 /* TimerPanelView.swift */,
 			);
 			path = Mac;
@@ -410,6 +416,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E64E67CC277FD680DEE3779 /* DesktopWidgets.swift in Sources */,
 				813B0BD6B7DFB378E49CD702 /* HangingHeroView.swift in Sources */,
 				CE3C31FA7D453C7EA23AD082 /* HangingHeroWindow.swift in Sources */,
 				A41B163B037F45FA3C2AD09F /* HeroIcon.swift in Sources */,
@@ -417,6 +424,7 @@
 				74BCF9A02CC35B3201841640 /* PhaseSound.swift in Sources */,
 				F1EECE4243CDF962BB93861D /* SpiderPomodoroApp.swift in Sources */,
 				D8EE74B3FBCFE794613FE976 /* StatusItemController.swift in Sources */,
+				E8D1200C7AD541FC6D708B8E /* TimerCard.swift in Sources */,
 				3AD276075DA51ECE072A8959 /* TimerPanelView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

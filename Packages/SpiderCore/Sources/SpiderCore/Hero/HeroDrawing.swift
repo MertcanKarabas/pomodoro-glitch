@@ -19,6 +19,30 @@ public enum HeroPose: String, Sendable, CaseIterable {
     case waving
     /// Eyes closed, z's floating up. Timer not started.
     case sleeping
+    /// Shaken on the Mac: spiral eyes, stars circling his head, one hand let go.
+    case dizzy
+    /// Shaken a lot: angry eyes, steam puffs, shaking a fist.
+    case grumpy
+
+    // On a Mac desktop widget.
+    /// Sitting on the widget's top edge, swinging his legs.
+    case sitting
+    /// Sitting on the widget, asleep.
+    case sittingAsleep
+    /// Sitting on the widget, waving.
+    case sittingWaving
+    /// Feet stuck under the widget, hanging head-down with arms crossed.
+    case upsideDown
+    /// Behind the widget, peeking over the top edge and looking around.
+    case peeking
+    /// Gripping the widget's right side (mirror it for the left).
+    case clinging
+    /// Walking along the widget's top edge.
+    case walking
+    /// Walking upside down along the widget's bottom edge.
+    case upsideDownWalking
+    /// Upside down under the widget, spying on it through binoculars.
+    case spying
 }
 
 /// Just the hero's masked head, for tight spots like the Dynamic Island.
@@ -59,13 +83,33 @@ public struct HeroFigure: View {
         self.scale = scale
     }
 
+    /// The picture's size for a pose, and the point he holds on with: his hands on the web,
+    /// or on a widget his seat, feet or hands on its edge.
+    public static func layout(for pose: HeroPose) -> (size: CGSize, contact: CGPoint) {
+        switch pose {
+        case .hanging, .climbing, .waving, .sleeping, .dizzy, .grumpy:
+            (baseSize, grip)
+        case .sitting, .sittingAsleep, .sittingWaving:
+            (CGSize(width: 90, height: 136), CGPoint(x: 45, y: 100))
+        case .upsideDown, .upsideDownWalking, .spying:
+            (CGSize(width: 84, height: 116), CGPoint(x: 42, y: 6))
+        case .walking:
+            (CGSize(width: 84, height: 118), CGPoint(x: 42, y: 112))
+        case .peeking:
+            (CGSize(width: 84, height: 60), CGPoint(x: 42, y: 44))
+        case .clinging:
+            (CGSize(width: 70, height: 116), CGPoint(x: 12, y: 66))
+        }
+    }
+
     public var body: some View {
+        let layout = Self.layout(for: pose)
         Canvas { context, _ in
             context.scaleBy(x: scale, y: scale)
-            context.translateBy(x: Self.grip.x, y: Self.grip.y)
+            context.translateBy(x: layout.contact.x, y: layout.contact.y)
             HeroDrawing.drawHero(pose: pose, time: time, in: &context)
         }
-        .frame(width: Self.baseSize.width * scale, height: Self.baseSize.height * scale)
+        .frame(width: layout.size.width * scale, height: layout.size.height * scale)
         .accessibilityLabel("Spider hero, \(pose.rawValue)")
     }
 }
@@ -73,11 +117,30 @@ public struct HeroFigure: View {
 enum HeroDrawing {
     static let outlineWidth: CGFloat = 1.6
 
-    /// Draws the hero with the hand grip at (0, 0). y grows downwards.
-    /// Roughly x -38...38, y -8...114.
+    /// Draws the hero with his contact point (see `HeroFigure.layout`) at (0, 0). y grows
+    /// downwards. On the web that's the hand grip; he spans roughly x -38...38, y -8...114.
     static func drawHero(pose: HeroPose, time t: Double, in context: inout GraphicsContext) {
+        switch pose {
+        case .sitting, .sittingAsleep, .sittingWaving: return drawSitting(pose: pose, time: t, in: &context)
+        case .upsideDown: return drawStanding(.armsCrossed, upsideDown: true, time: t, in: &context)
+        case .upsideDownWalking: return drawStanding(.walking, upsideDown: true, time: t, in: &context)
+        case .spying: return drawStanding(.binoculars, upsideDown: true, time: t, in: &context)
+        case .walking: return drawStanding(.walking, upsideDown: false, time: t, in: &context)
+        case .peeking: return drawPeeking(time: t, in: &context)
+        case .clinging: return drawClinging(time: t, in: &context)
+        case .hanging, .climbing, .waving, .sleeping, .dizzy, .grumpy: break
+        }
+
         let climbBeat = (sin(t * 2 * .pi / 0.9) + 1) / 2
-        let sway = pose == .hanging ? 1.4 * sin(t * 2 * .pi / 3.4 + 0.8) : 0
+        let sway: Double = switch pose {
+        case .hanging: 1.4 * sin(t * 2 * .pi / 3.4 + 0.8)
+        // Legs flop about while he's dizzy and kick while he's cross.
+        case .dizzy: 4 * sin(t * 2 * .pi / dizzyCycle)
+        case .grumpy: 2 * sin(t * 2 * .pi / 0.3)
+        case .climbing, .waving, .sleeping: 0
+        case .sitting, .sittingAsleep, .sittingWaving, .upsideDown, .peeking, .clinging,
+             .walking, .upsideDownWalking, .spying: 0
+        }
 
         // Hands
         var leftHand = CGPoint(x: -5, y: 1)
@@ -92,8 +155,23 @@ enum HeroDrawing {
             leftHand.x = -1
             rightHand = CGPoint(x: 31 + 3 * wave, y: 22 - 2 * abs(wave))
             rightElbow = CGPoint(x: 38, y: 50)
-        case .hanging, .sleeping:
+        case .dizzy:
+            // One hand let go and dangles limp.
+            leftHand.x = -1
+            rightHand = CGPoint(x: 20, y: 86 + 2 * sin(t * 2 * .pi / dizzyCycle))
+            rightElbow = CGPoint(x: 27, y: 70)
+        case .grumpy:
+            // Shakes a fist.
+            leftHand.x = -1
+            rightHand = CGPoint(x: 29, y: 15 + 4 * sin(t * 2 * .pi / 0.3))
+            rightElbow = CGPoint(x: 41, y: 44)
+        case .hanging, .sleeping, .sitting, .sittingAsleep, .sittingWaving, .upsideDown, .peeking, .clinging,
+             .walking, .upsideDownWalking, .spying:
             break
+        }
+
+        if pose == .dizzy {
+            drawStars(time: t, front: false, in: &context)
         }
 
         // Arms go behind the head.
@@ -131,36 +209,57 @@ enum HeroDrawing {
         drawBadge(at: CGPoint(x: 0, y: 63), in: &context)
         context.stroke(torso, with: .color(HeroPalette.outline), lineWidth: outlineWidth)
 
-        drawHead(pose: pose, in: &context)
+        drawHead(pose: pose, time: t, in: &context)
 
         // Hands on top of everything
-        for hand in [leftHand, rightHand] {
-            blob(Path(ellipseIn: CGRect(x: hand.x - 5, y: hand.y - 5, width: 10, height: 10)),
+        for (index, hand) in [leftHand, rightHand].enumerated() {
+            let fist = pose == .grumpy && index == 1
+            let radius: CGFloat = fist ? 6.5 : 5
+            blob(Path(ellipseIn: CGRect(x: hand.x - radius, y: hand.y - radius, width: radius * 2, height: radius * 2)),
                  color: HeroPalette.red, in: &context)
+            if fist {
+                // Knuckles.
+                var knuckles = Path()
+                for dx in [-2.5, 0.5, 3.5] {
+                    knuckles.move(to: CGPoint(x: hand.x + dx - 1, y: hand.y - 4))
+                    knuckles.addLine(to: CGPoint(x: hand.x + dx - 1, y: hand.y - 1))
+                }
+                context.stroke(knuckles, with: .color(HeroPalette.outline),
+                               style: StrokeStyle(lineWidth: 1.1, lineCap: .round))
+            }
         }
 
-        if pose == .sleeping {
-            drawSnores(time: t, in: &context)
+        switch pose {
+        case .sleeping: drawSnores(time: t, in: &context)
+        case .dizzy: drawStars(time: t, front: true, in: &context)
+        case .grumpy: drawSteam(time: t, in: &context)
+        default: break
         }
     }
+
+    /// One full loop of the dizzy animation (stars go round once, eyes spin twice).
+    static let dizzyCycle = 1.6
+    /// One full loop of the grumpy animation (steam puffs rise once).
+    static let grumpyCycle = 1.2
 
     /// The mask and eyes. Occupies x -23...23, y 9...53 in hero coordinates.
-    static func drawHead(pose: HeroPose, in context: inout GraphicsContext) {
+    static func drawHead(pose: HeroPose, time: Double = 0, in context: inout GraphicsContext) {
         blob(Path(ellipseIn: CGRect(x: -23, y: 9, width: 46, height: 44)), color: HeroPalette.red, in: &context)
-        drawEyes(pose: pose, in: &context)
+        drawEyes(pose: pose, time: time, in: &context)
     }
 
-    private static func drawEyes(pose: HeroPose, in context: inout GraphicsContext) {
+    private static func drawEyes(pose: HeroPose, time: Double, in context: inout GraphicsContext) {
         for side in [-1.0, 1.0] {
             let center = CGPoint(x: 10 * side, y: 33)
             switch pose {
-            case .hanging, .climbing:
+            case .hanging, .climbing, .sitting, .upsideDown, .peeking, .clinging,
+                 .walking, .upsideDownWalking, .spying:
                 let eye = Path(ellipseIn: CGRect(x: -7.5, y: -5, width: 15, height: 10))
                     .applying(CGAffineTransform(rotationAngle: -side * 18 * .pi / 180)
                         .concatenating(CGAffineTransform(translationX: center.x, y: center.y)))
                 context.fill(eye, with: .color(HeroPalette.eye))
                 context.stroke(eye, with: .color(HeroPalette.outline), lineWidth: 2.2)
-            case .waving:
+            case .waving, .sittingWaving:
                 // Happy closed eyes: ∩
                 var arc = Path()
                 arc.move(to: CGPoint(x: center.x - 6, y: center.y + 2))
@@ -168,7 +267,7 @@ enum HeroDrawing {
                                  control: CGPoint(x: center.x, y: center.y - 7))
                 context.stroke(arc, with: .color(HeroPalette.eye),
                                style: StrokeStyle(lineWidth: 3.2, lineCap: .round))
-            case .sleeping:
+            case .sleeping, .sittingAsleep:
                 // Sleepy closed eyes: ∪
                 var arc = Path()
                 arc.move(to: CGPoint(x: center.x - 6, y: center.y - 1))
@@ -176,8 +275,324 @@ enum HeroDrawing {
                                  control: CGPoint(x: center.x, y: center.y + 5))
                 context.stroke(arc, with: .color(HeroPalette.eye),
                                style: StrokeStyle(lineWidth: 3, lineCap: .round))
+            case .dizzy:
+                drawSpiralEye(at: center, turn: side * time * 2 * .pi / (dizzyCycle / 2), in: &context)
+            case .grumpy:
+                drawAngryEye(at: center, side: side, in: &context)
             }
         }
+    }
+
+    /// Round white eye with a spinning spiral.
+    private static func drawSpiralEye(at center: CGPoint, turn: Double, in context: inout GraphicsContext) {
+        let eye = Path(ellipseIn: CGRect(x: center.x - 7, y: center.y - 7, width: 14, height: 14))
+        context.fill(eye, with: .color(HeroPalette.eye))
+        context.stroke(eye, with: .color(HeroPalette.outline), lineWidth: 2)
+        var spiral = Path()
+        let turns = 2.6
+        let steps = 48
+        for step in 0...steps {
+            let fraction = Double(step) / Double(steps)
+            let angle = fraction * turns * 2 * .pi + turn
+            let radius = 0.4 + 5.2 * fraction
+            let point = CGPoint(x: center.x + radius * cos(angle), y: center.y + radius * sin(angle))
+            if step == 0 { spiral.move(to: point) } else { spiral.addLine(to: point) }
+        }
+        context.stroke(spiral, with: .color(HeroPalette.outline),
+                       style: StrokeStyle(lineWidth: 1.3, lineCap: .round, lineJoin: .round))
+    }
+
+    /// The usual eye with a heavy brow cutting down towards the nose.
+    private static func drawAngryEye(at center: CGPoint, side: Double, in context: inout GraphicsContext) {
+        let eye = Path(ellipseIn: CGRect(x: -7.5, y: -5, width: 15, height: 10))
+            .applying(CGAffineTransform(rotationAngle: -side * 18 * .pi / 180)
+                .concatenating(CGAffineTransform(translationX: center.x, y: center.y)))
+        context.fill(eye, with: .color(HeroPalette.eye))
+        context.stroke(eye, with: .color(HeroPalette.outline), lineWidth: 2.2)
+
+        // Outer end high, inner end (towards the middle of the face) low.
+        let outer = CGPoint(x: center.x + 10.5 * side, y: center.y - 7.4)
+        let inner = CGPoint(x: center.x - 10.5 * side, y: center.y + 0.3)
+        var cover = Path()
+        cover.move(to: outer)
+        cover.addLine(to: inner)
+        cover.addLine(to: CGPoint(x: inner.x, y: center.y - 10))
+        cover.addLine(to: CGPoint(x: outer.x, y: center.y - 10))
+        cover.closeSubpath()
+        context.fill(cover, with: .color(HeroPalette.red))
+
+        var brow = Path()
+        brow.move(to: CGPoint(x: center.x + 9 * side, y: center.y - 6.7))
+        brow.addLine(to: CGPoint(x: center.x - 8.5 * side, y: center.y - 0.5))
+        context.stroke(brow, with: .color(HeroPalette.outline),
+                       style: StrokeStyle(lineWidth: 2.6, lineCap: .round))
+    }
+
+    /// Three gold stars circling above his head. Drawn in two passes so the ones going
+    /// round the back sit behind him.
+    private static func drawStars(time t: Double, front: Bool, in context: inout GraphicsContext) {
+        for index in 0..<3 {
+            let angle = (t / dizzyCycle + Double(index) / 3) * 2 * .pi
+            let depth = sin(angle)
+            guard (depth >= 0) == front else { continue }
+            let center = CGPoint(x: 25 * cos(angle), y: 7 + 6 * depth)
+            let radius = 4.2 + 1.2 * depth
+            var layer = context
+            layer.opacity = 0.75 + 0.25 * depth
+            let star = starPath(center: center, radius: radius)
+            layer.fill(star, with: .color(HeroPalette.gold))
+            layer.stroke(star, with: .color(HeroPalette.outline), lineWidth: 0.9)
+        }
+    }
+
+    private static func starPath(center: CGPoint, radius: CGFloat) -> Path {
+        var path = Path()
+        for point in 0..<10 {
+            let r = point.isMultiple(of: 2) ? radius : radius * 0.45
+            let angle = Double(point) * .pi / 5 - .pi / 2
+            let p = CGPoint(x: center.x + r * cos(angle), y: center.y + r * sin(angle))
+            if point == 0 { path.move(to: p) } else { path.addLine(to: p) }
+        }
+        path.closeSubpath()
+        return path
+    }
+
+    /// Little puffs of steam rising from the left of his head (his fist is on the right).
+    private static func drawSteam(time t: Double, in context: inout GraphicsContext) {
+        context.drawLayer { layer in
+            layer.addFilter(.shadow(color: .black.opacity(0.5), radius: 1))
+            // Two vents: the side of his head, and higher up near the top.
+            for (vent, start, drift) in [(0, CGPoint(x: -21, y: 17), CGVector(dx: -10, dy: -16)),
+                                         (1, CGPoint(x: -13, y: 11), CGVector(dx: -6, dy: -18))] {
+                for puff in 0..<2 {
+                    let phase = (t / grumpyCycle + Double(puff) / 2 + Double(vent) * 0.25)
+                        .truncatingRemainder(dividingBy: 1)
+                    var cloud = layer
+                    cloud.opacity = 0.9 * sin(phase * .pi)
+                    let center = CGPoint(x: start.x + drift.dx * phase, y: start.y + drift.dy * phase)
+                    let radius = 2.2 + 3.3 * phase
+                    var shape = Path()
+                    for (dx, dy, scale) in [(0.0, 0.0, 1.0), (-0.8, 0.5, 0.7), (0.8, 0.5, 0.7)] {
+                        let r = radius * scale
+                        shape.addEllipse(in: CGRect(x: center.x + dx * radius - r, y: center.y + dy * radius - r,
+                                                    width: r * 2, height: r * 2))
+                    }
+                    cloud.fill(shape, with: .color(.white))
+                }
+            }
+        }
+    }
+
+    // MARK: - On a desktop widget
+
+    /// Leg swing, look-around, climb, step and spy loops for the widget poses.
+    static let walkCycle = 0.6
+    static let spyCycle = 2.4
+    static let sitCycle = 1.2
+    static let peekCycle = 3.0
+    static let clingCycle = 1.6
+
+    /// Navy body with belt and badge. Hero coordinates: x -14...14, y 50...82.
+    private static func drawTorso(in context: inout GraphicsContext) {
+        let torso = Path(roundedRect: CGRect(x: -14, y: 50, width: 28, height: 32), cornerRadius: 10)
+        context.fill(torso, with: .color(HeroPalette.navy))
+        context.drawLayer { layer in
+            layer.clip(to: torso)
+            layer.fill(Path(CGRect(x: -15, y: 73, width: 30, height: 4.5)), with: .color(HeroPalette.gold))
+        }
+        drawBadge(at: CGPoint(x: 0, y: 63), in: &context)
+        context.stroke(torso, with: .color(HeroPalette.outline), lineWidth: outlineWidth)
+    }
+
+    private static func drawHand(at point: CGPoint, in context: inout GraphicsContext) {
+        blob(Path(ellipseIn: CGRect(x: point.x - 5, y: point.y - 5, width: 10, height: 10)),
+             color: HeroPalette.red, in: &context)
+    }
+
+    private static func drawLeg(hip: CGPoint, knee: CGPoint, foot: CGPoint, in context: inout GraphicsContext) {
+        var leg = Path()
+        leg.move(to: hip)
+        leg.addLine(to: knee)
+        leg.addLine(to: foot)
+        limb(leg, color: HeroPalette.navy, width: 10, in: &context)
+        blob(Path(ellipseIn: CGRect(x: foot.x - 7, y: foot.y - 3, width: 14, height: 9)),
+             color: HeroPalette.red, in: &context)
+    }
+
+    /// Seat on the edge at (0, 0): body above, legs swinging over the front of the widget.
+    private static func drawSitting(pose: HeroPose, time t: Double, in context: inout GraphicsContext) {
+        let asleep = pose == .sittingAsleep
+        let wave = sin(t * 2 * .pi / 0.7)
+        let leftHand = CGPoint(x: -22, y: -1)
+        let rightHand = pose == .sittingWaving
+            ? CGPoint(x: 31 + 3 * wave, y: -57 - 2 * abs(wave))
+            : CGPoint(x: 22, y: -1)
+        let rightElbow = pose == .sittingWaving ? CGPoint(x: 40, y: -26) : CGPoint(x: 27, y: -14)
+
+        // Arms behind the body, hands flat on the edge.
+        limb(curve(from: CGPoint(x: -13, y: -24), to: leftHand, control: CGPoint(x: -27, y: -14)),
+             color: HeroPalette.navy, width: 7, in: &context)
+        limb(curve(from: CGPoint(x: 13, y: -24), to: rightHand, control: rightElbow),
+             color: HeroPalette.navy, width: 7, in: &context)
+
+        // A shorter body: he's sitting.
+        let torso = Path(roundedRect: CGRect(x: -14, y: -30, width: 28, height: 30), cornerRadius: 10)
+        context.fill(torso, with: .color(HeroPalette.navy))
+        context.drawLayer { layer in
+            layer.clip(to: torso)
+            layer.fill(Path(CGRect(x: -15, y: -9, width: 30, height: 4.5)), with: .color(HeroPalette.gold))
+        }
+        drawBadge(at: CGPoint(x: 0, y: -19), in: &context)
+        context.stroke(torso, with: .color(HeroPalette.outline), lineWidth: outlineWidth)
+
+        // Legs over the edge, swinging one after the other (still while asleep).
+        for (index, side) in [-1.0, 1.0].enumerated() {
+            let beat = asleep ? 0 : (sin(t * 2 * .pi / sitCycle + Double(index) * .pi) + 1) / 2
+            drawLeg(hip: CGPoint(x: 7 * side, y: -3),
+                    knee: CGPoint(x: 9 * side, y: 5),
+                    foot: CGPoint(x: (9 + 1.5 * beat) * side, y: 27 - 7 * beat),
+                    in: &context)
+        }
+
+        var head = context
+        head.translateBy(x: 0, y: -79)
+        drawHead(pose: pose, time: t, in: &head)
+        if asleep {
+            drawSnores(time: t, in: &head)
+        }
+
+        drawHand(at: leftHand, in: &context)
+        drawHand(at: rightHand, in: &context)
+    }
+
+    enum StandingArms {
+        case armsCrossed, walking, binoculars
+    }
+
+    /// Standing on a widget's edge with his soles at (0, 0): on top of the top edge, or turned
+    /// over and stuck under the bottom edge.
+    private static func drawStanding(_ arms: StandingArms, upsideDown: Bool, time t: Double,
+                                     in context: inout GraphicsContext) {
+        var body = context
+        // Draw him standing in hero coordinates (boots end at y 110), then put the soles at (0, 0).
+        if upsideDown {
+            body.rotate(by: .radians(.pi))
+        }
+        body.translateBy(x: 0, y: -110)
+
+        // Legs: one step after the other while walking.
+        let step = sin(t * 2 * .pi / walkCycle)
+        for side in [-1.0, 1.0] {
+            let lift = arms == .walking ? 5 * max(0, side < 0 ? step : -step) : 0
+            drawLeg(hip: CGPoint(x: 7 * side, y: 78),
+                    knee: CGPoint(x: (6 + lift * 0.5) * side, y: 91 - lift * 0.5),
+                    foot: CGPoint(x: (5 + lift * 0.3) * side, y: 104 - lift),
+                    in: &body)
+        }
+        // A little bob in each step.
+        if arms == .walking {
+            body.translateBy(x: 0, y: abs(step) * 1.2)
+        }
+        drawTorso(in: &body)
+
+        let look = arms == .binoculars ? 2.5 * sin(t * 2 * .pi / spyCycle) : 0
+        var head = body
+        head.translateBy(x: look, y: 0)
+        drawHead(pose: upsideDown ? .upsideDown : .walking, in: &head)
+
+        switch arms {
+        case .armsCrossed:
+            limb(curve(from: CGPoint(x: -13, y: 57), to: CGPoint(x: 9, y: 66), control: CGPoint(x: -18, y: 72)),
+                 color: HeroPalette.navy, width: 7, in: &body)
+            limb(curve(from: CGPoint(x: 13, y: 57), to: CGPoint(x: -9, y: 66), control: CGPoint(x: 18, y: 72)),
+                 color: HeroPalette.navy, width: 7, in: &body)
+            drawHand(at: CGPoint(x: 9, y: 66), in: &body)
+            drawHand(at: CGPoint(x: -9, y: 66), in: &body)
+        case .walking:
+            // Arms swing opposite to the legs.
+            for side in [-1.0, 1.0] {
+                let hand = CGPoint(x: 20 * side, y: 79 + 4 * step * side)
+                limb(curve(from: CGPoint(x: 13 * side, y: 57), to: hand, control: CGPoint(x: 22 * side, y: 64)),
+                     color: HeroPalette.navy, width: 7, in: &body)
+                drawHand(at: hand, in: &body)
+            }
+        case .binoculars:
+            for side in [-1.0, 1.0] {
+                let hand = CGPoint(x: 13 * side + look, y: 42)
+                limb(curve(from: CGPoint(x: 13 * side, y: 57), to: hand, control: CGPoint(x: 24 * side, y: 54)),
+                     color: HeroPalette.navy, width: 7, in: &body)
+            }
+            drawBinoculars(at: CGPoint(x: look, y: 33), in: &body)
+            for side in [-1.0, 1.0] {
+                drawHand(at: CGPoint(x: 13 * side + look, y: 42), in: &body)
+            }
+        }
+    }
+
+    /// Two barrels over his eyes, with a glint on each lens.
+    private static func drawBinoculars(at center: CGPoint, in context: inout GraphicsContext) {
+        let bridge = Path(roundedRect: CGRect(x: center.x - 6, y: center.y - 3, width: 12, height: 6), cornerRadius: 1.5)
+        context.fill(bridge, with: .color(HeroPalette.outline))
+        for side in [-1.0, 1.0] {
+            let lens = CGRect(x: center.x + 10 * side - 8, y: center.y - 8, width: 16, height: 16)
+            context.fill(Path(ellipseIn: lens), with: .color(HeroPalette.outline))
+            context.stroke(Path(ellipseIn: lens.insetBy(dx: 1.2, dy: 1.2)), with: .color(HeroPalette.gold), lineWidth: 1.4)
+            context.fill(Path(ellipseIn: lens.insetBy(dx: 3, dy: 3)), with: .color(Color(red: 0.35, green: 0.55, blue: 0.85)))
+            context.fill(Path(ellipseIn: CGRect(x: lens.minX + 4.5, y: lens.minY + 4, width: 3.2, height: 3.2)),
+                         with: .color(.white.opacity(0.9)))
+        }
+    }
+
+    /// Hands on the top edge at (0, 0), only the top of his head showing above it.
+    private static func drawPeeking(time t: Double, in context: inout GraphicsContext) {
+        let look = 5 * sin(t * 2 * .pi / peekCycle)
+        let bob = 1.2 * sin(t * 2 * .pi / (peekCycle / 2))
+        context.drawLayer { above in
+            // The rest of him is behind the widget.
+            above.clip(to: Path(CGRect(x: -60, y: -80, width: 120, height: 80)))
+            above.translateBy(x: look, y: -42 + bob)
+            drawHead(pose: .peeking, in: &above)
+        }
+        // Fingers curled over the edge.
+        for side in [-1.0, 1.0] {
+            let hand = CGPoint(x: 17 * side, y: 0)
+            blob(Path(ellipseIn: CGRect(x: hand.x - 5.5, y: hand.y - 4.5, width: 11, height: 9)),
+                 color: HeroPalette.red, in: &context)
+            var fingers = Path()
+            for dx in [-2.5, 0.0, 2.5] {
+                fingers.move(to: CGPoint(x: hand.x + dx, y: hand.y + 0.5))
+                fingers.addLine(to: CGPoint(x: hand.x + dx, y: hand.y + 3.5))
+            }
+            context.stroke(fingers, with: .color(HeroPalette.outline),
+                           style: StrokeStyle(lineWidth: 1, lineCap: .round))
+        }
+    }
+
+    /// The widget's right edge runs through (0, 0) with the widget to the left; he hangs on
+    /// beside it with both hands and one foot against it.
+    private static func drawClinging(time t: Double, in context: inout GraphicsContext) {
+        let climb = 3 * sin(t * 2 * .pi / clingCycle)
+        let sway = 1.5 * sin(t * 2 * .pi / clingCycle + 1)
+        var body = context
+        // Hero coordinates, moved beside the edge: the edge is at x -26 here.
+        body.translateBy(x: 26, y: -66)
+        let upperHand = CGPoint(x: -27, y: 26 - climb)
+        let lowerHand = CGPoint(x: -27, y: 70 + climb)
+
+        // Foot braced on the edge, the other leg hanging.
+        drawLeg(hip: CGPoint(x: -7, y: 78), knee: CGPoint(x: -15, y: 86), foot: CGPoint(x: -23, y: 98), in: &body)
+        drawLeg(hip: CGPoint(x: 7, y: 78), knee: CGPoint(x: 8, y: 91), foot: CGPoint(x: 9 + sway, y: 104), in: &body)
+
+        // Upper arm reaches past his head to the edge.
+        limb(curve(from: CGPoint(x: -13, y: 57), to: upperHand, control: CGPoint(x: -31, y: 50)),
+             color: HeroPalette.navy, width: 7, in: &body)
+        drawTorso(in: &body)
+        drawHead(pose: .clinging, in: &body)
+        // Lower arm crosses in front of him.
+        limb(curve(from: CGPoint(x: 13, y: 57), to: lowerHand, control: CGPoint(x: 2, y: 82)),
+             color: HeroPalette.navy, width: 7, in: &body)
+        drawHand(at: upperHand, in: &body)
+        drawHand(at: lowerHand, in: &body)
     }
 
     /// Small gold spider on the chest.

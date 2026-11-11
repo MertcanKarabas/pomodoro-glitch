@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import SpiderCore
 
 /// Mac-only display choices for the hanging hero. Not synced: each device decides for itself.
 @MainActor
@@ -27,16 +28,58 @@ final class HeroPrefs {
         didSet { defaults.set(size.rawValue, forKey: Keys.size) }
     }
 
+    /// Where the top of the web is after the hero was dragged somewhere (screen coordinates).
+    /// Nil: he hangs under the menu bar icon.
+    var customAnchor: CGPoint? {
+        didSet { save(customAnchor, key: Keys.anchor) }
+    }
+
+    /// The desktop widget he's sitting on, or nil while he's on his web.
+    var perch: Perch? {
+        didSet { defaults.set(perch.flatMap { try? JSONEncoder().encode($0) }, forKey: Keys.perch) }
+    }
+
+    /// The timer card stays on screen as its own window.
+    var cardPinned: Bool {
+        didSet { defaults.set(cardPinned, forKey: Keys.cardPinned) }
+    }
+
+    /// Bottom-left corner of the pinned card (screen coordinates).
+    var cardOrigin: CGPoint? {
+        didSet { save(cardOrigin, key: Keys.cardOrigin) }
+    }
+
     @ObservationIgnored private let defaults: UserDefaults
 
     private enum Keys {
         static let show = "hero.show"
         static let size = "hero.size"
+        static let anchor = "hero.anchor"
+        static let perch = "hero.perch"
+        static let cardPinned = "card.pinned"
+        static let cardOrigin = "card.origin"
     }
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         showHero = defaults.object(forKey: Keys.show) as? Bool ?? true
         size = defaults.string(forKey: Keys.size).flatMap(Size.init(rawValue:)) ?? .medium
+        customAnchor = Self.load(defaults, key: Keys.anchor)
+        perch = defaults.data(forKey: Keys.perch).flatMap { try? JSONDecoder().decode(Perch.self, from: $0) }
+        cardPinned = defaults.bool(forKey: Keys.cardPinned)
+        cardOrigin = Self.load(defaults, key: Keys.cardOrigin)
+    }
+
+    private func save(_ point: CGPoint?, key: String) {
+        if let point {
+            defaults.set([point.x, point.y], forKey: key)
+        } else {
+            defaults.removeObject(forKey: key)
+        }
+    }
+
+    private static func load(_ defaults: UserDefaults, key: String) -> CGPoint? {
+        guard let values = defaults.array(forKey: key) as? [Double], values.count == 2 else { return nil }
+        return CGPoint(x: values[0], y: values[1])
     }
 }

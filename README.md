@@ -27,7 +27,11 @@
 ## What it does
 
 - **Hero on a web.** Work time: the hero hangs from the top and drops as the minutes pass. Break: he climbs back up. Phase over: he waves. Not started: he sleeps.
-- **Mac menu bar.** Time left next to the hero icon in the menu bar, and the hero hanging right under it on your desktop (clicks pass through him). Click the icon for the timer panel.
+- **Mac menu bar.** Time left next to the hero icon in the menu bar, and the hero hanging right under it on your desktop. Click the icon for the timer panel.
+- **Move the hero.** Drag him anywhere on your screen and his web starts from there. **Settings → Back under the menu bar** puts him back. Clicks around him still reach the windows underneath.
+- **Timer card.** Click the hero for a small card with the countdown, Pause and Skip. Pin it (or just drag it) to keep it on screen as its own window; it comes back after a restart, and it always stays clear of the screen edges and the Dock.
+- **Play with him.** Point at the hero and he waves. Carry him around and he dangles from his hands. Shake him and he gets dizzy; keep shaking and he gets grumpy.
+- **Climbing.** Drop the hero on the pinned timer card or a desktop widget and he climbs onto it: near the top edge he sits on it swinging his legs, near the bottom he hangs upside down under it, near a side he grips that side, and in the middle he climbs behind it and peeks over the top. Then he wanders: walks along the edges, climbs round the corners, often goes up to sit on top, and sneaks underneath upside down to spy on it with binoculars. With the timer stopped he naps on top; point at him and he holds still. He moves with the card when you drag it, and on a desktop widget app windows cover him just like they cover the widget. Drag him off to put him back on his web. (macOS doesn't tell apps which widget is which, so he climbs any desktop widget.)
 - **iPhone.** The hero hangs from the Dynamic Island, with a live countdown in the island and on the Lock Screen.
 - **Widgets.** Home screen, Lock Screen and Mac desktop widgets with Start/Pause and Skip buttons that work without opening the app.
 - **Mac and iPhone in sync.** Press Start on one, the other follows within seconds, through your own iCloud.

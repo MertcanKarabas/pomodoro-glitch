@@ -25,6 +25,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
     private let updates: UpdateChecker?
     private var statusItem: StatusItemController?
     private var heroWindow: HangingHeroWindow?
+    private var timerCard: TimerCardController?
     private var pullTimer: Timer?
     private let log = Logger(subsystem: "SpiderPomodoro", category: "sync")
 
@@ -64,10 +65,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
             controller: controller,
             prefs: heroPrefs
         )
-        let heroWindow = HangingHeroWindow(heroView: heroView) { [weak statusItem] in statusItem?.iconAnchor }
+        let heroWindow = HangingHeroWindow(heroView: heroView, prefs: heroPrefs) { [weak statusItem] in
+            statusItem?.iconAnchor
+        }
+        let timerCard = TimerCardController(controller: controller, prefs: heroPrefs)
+        heroWindow.onHeroClick = { [weak timerCard] heroRect in timerCard?.heroClicked(heroRect: heroRect) }
+        heroWindow.onHeroDragBegan = { [weak timerCard] in timerCard?.heroDragBegan() }
+        // He can climb the pinned card, and follows it when it moves.
+        heroWindow.cardFrame = { [weak timerCard] in timerCard?.frame }
+        timerCard.onFrameChange = { [weak heroWindow] frame in heroWindow?.cardFrameChanged(frame) }
+        timerCard.restorePinnedCard()
         heroWindow.start()
         self.statusItem = statusItem
         self.heroWindow = heroWindow
+        self.timerCard = timerCard
 
         // iCloud should wake us with a silent push when the iPhone changes the timer, but on the
         // Mac those pushes don't always arrive, so also check every minute (one tiny fetch),
